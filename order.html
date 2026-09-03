@@ -6,9 +6,6 @@
   <title>Order Receipt | Juris Nexum</title>
   <link rel="icon" href="assets/jnx-logo.png">
   <link rel="stylesheet" href="css/style.css">
-
-  <!-- PDF generator -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
@@ -23,10 +20,14 @@
   </a>
 </header>
 
+
+<!-- =====================================================
+     ACTUAL ORDER RECEIPT
+     ===================================================== -->
+
 <main class="receipt-page">
 
   <div class="receipt-actions no-print">
-
     <a class="secondary-button" href="index.html">
       Back to Shop
     </a>
@@ -38,8 +39,8 @@
     >
       Download Receipt as PDF
     </button>
-
   </div>
+
 
   <section id="receipt" class="receipt card">
 
@@ -64,6 +65,8 @@
 
 </main>
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="js/config.js"></script>
 <script src="js/order.js"></script>
 
