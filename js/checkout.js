@@ -33,7 +33,29 @@ function getProduct(productId) {
   );
 }
 
+function getItemVariant(item) {
+  const product = getProduct(item.productId);
+
+  if (!product || !item.variant) {
+    return null;
+  }
+
+  return (
+    product.variantDetails || []
+  ).find(
+    v =>
+      String(v.variant).toLowerCase() ===
+      String(item.variant).toLowerCase()
+  ) || null;
+}
+
 function getItemRegularPrice(item) {
+  const variant = getItemVariant(item);
+
+  if (variant) {
+    return Number(variant.price) || 0;
+  }
+
   const product = getProduct(item.productId);
 
   if (product) {
@@ -44,6 +66,17 @@ function getItemRegularPrice(item) {
 }
 
 function getItemMemberPrice(item) {
+  const variant = getItemVariant(item);
+
+  if (variant) {
+    const memberPrice =
+      Number(variant.memberPrice) || 0;
+
+    return memberPrice > 0
+      ? memberPrice
+      : Number(variant.price) || 0;
+  }
+
   const product = getProduct(item.productId);
 
   if (product) {

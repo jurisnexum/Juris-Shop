@@ -3,82 +3,281 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Juris Nexum Merchandise Shop</title>
+
+  <title>Juris Nexum | Official Merchandise</title>
+
   <link rel="icon" href="assets/jnx-logo.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-<header class="site-header">
-  <div class="brand">
-    <img src="assets/jnx-logo.png" alt="Juris Nexum logo">
-    <div>
-      <h1>Juris Nexum</h1>
-      <p>Merchandise Shop</p>
-    </div>
+
+<body class="shop-home">
+
+<header class="store-header">
+  <div class="store-header-inner">
+
+    <a href="index.html" class="store-brand">
+      <img src="assets/jnx-logo.png" alt="Juris Nexum logo">
+
+      <div>
+        <strong>JURIS NEXUM</strong>
+        <span>OFFICIAL MERCHANDISE</span>
+      </div>
+    </a>
+
+    <nav class="store-nav">
+      <a href="#shop">Shop</a>
+      <a href="#track">Track Order</a>
+    </nav>
+
+    <a href="checkout.html" class="store-cart">
+      <span class="cart-icon">🛒</span>
+      <span>Cart</span>
+      <b id="cartCount">0</b>
+    </a>
+
   </div>
-  <a class="cart-button" href="checkout.html">Cart <span id="cartCount">0</span></a>
 </header>
 
+
 <main>
-  <section class="hero">
-    <div>
-      <p class="eyebrow">OFFICIAL MERCHANDISE</p>
-      <h2>Wear the spirit of Juris Nexum.</h2>
-      <p>Browse our merchandise and place an order without creating an account.</p>
-    </div>
-  </section>
 
-  
-  <section class="shop-section">
-    <div class="card">
-      <p class="eyebrow">ORDER TRACKING</p>
-      <h2>Already placed an order?</h2>
-      <p class="muted">Enter your order number to view your receipt and current status.</p>
-      <form id="trackForm" style="display:flex;gap:10px;max-width:600px;">
-        <input id="trackOrderNo" placeholder="e.g. JNX-2026-00001" required>
-        <button class="primary-button" type="submit">Track</button>
-      </form>
-    </div>
-  </section>
+  <!-- HERO -->
+  <section class="store-hero">
 
-<section class="shop-section">
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">SHOP</p>
-        <h2>Available Merchandise</h2>
+    <div class="hero-glow"></div>
+
+    <div class="hero-content">
+
+      <div class="hero-copy">
+
+        <span class="hero-badge">
+          JNX OFFICIAL STORE
+        </span>
+
+        <h1>
+          Wear the
+          <span>Juris Nexum</span>
+          identity.
+        </h1>
+
+        <p>
+          Official merchandise made for the people who
+          represent Juris Nexum with pride, purpose, and style.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#shop" class="hero-button">
+            Shop Collection
+            <span>→</span>
+          </a>
+
+          <a href="#track" class="hero-link">
+            Track an Order
+          </a>
+        </div>
+
       </div>
+
+      <div class="hero-product">
+
+        <div class="hero-product-card">
+
+          <div class="hero-product-top">
+            <span>JNX</span>
+            <span>EST. 2026</span>
+          </div>
+
+          <img src="assets/jnx-logo.png" alt="Juris Nexum">
+
+          <div class="hero-product-bottom">
+            <strong>JURIS NEXUM</strong>
+            <span>LEGAL MANAGEMENT</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- QUICK FEATURES -->
+  <section class="store-features">
+
+    <div class="feature-item">
+      <div class="feature-icon">⚡</div>
+      <div>
+        <strong>Easy Ordering</strong>
+        <span>No account required</span>
+      </div>
+    </div>
+
+    <div class="feature-item">
+      <div class="feature-icon">💳</div>
+      <div>
+        <strong>Secure Payment</strong>
+        <span>Multiple payment options</span>
+      </div>
+    </div>
+
+    <div class="feature-item">
+      <div class="feature-icon">🎓</div>
+      <div>
+        <strong>JNX Member Price</strong>
+        <span>Exclusive member savings</span>
+      </div>
+    </div>
+
+    <div class="feature-item">
+      <div class="feature-icon">📦</div>
+      <div>
+        <strong>Order Tracking</strong>
+        <span>Check your order anytime</span>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- SHOP -->
+  <section id="shop" class="store-shop">
+
+    <div class="store-section-heading">
+
+      <div>
+        <span class="section-label">OUR COLLECTION</span>
+        <h2>Shop JNX Merchandise</h2>
+        <p>
+          Find official Juris Nexum merchandise for your everyday look.
+        </p>
+      </div>
+
+    </div>
+
+
+    <!-- SEARCH + FILTER -->
+    <div class="shop-controls">
+
+      <div class="shop-search">
+        <span>⌕</span>
+        <input
+          id="productSearch"
+          type="search"
+          placeholder="Search merchandise..."
+          autocomplete="off"
+        >
+      </div>
+
       <select id="categoryFilter" aria-label="Filter products">
         <option value="all">All Categories</option>
       </select>
+
     </div>
-    <div id="productGrid" class="product-grid"></div>
+
+
+    <div id="productGrid" class="modern-product-grid"></div>
+
   </section>
+
+
+  <!-- TRACK ORDER -->
+  <section id="track" class="track-section">
+
+    <div class="track-card">
+
+      <div class="track-icon">
+        📦
+      </div>
+
+      <div class="track-content">
+
+        <span class="section-label">ORDER TRACKING</span>
+
+        <h2>Already placed an order?</h2>
+
+        <p>
+          Enter your order number below to view your receipt,
+          payment status, and order progress.
+        </p>
+
+        <form id="trackForm" class="track-form">
+
+          <input
+            id="trackOrderNo"
+            placeholder="e.g. JNX-2026-00001"
+            autocomplete="off"
+            required
+          >
+
+          <button type="submit">
+            Track Order
+            <span>→</span>
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </section>
+
 </main>
 
-<footer>
-  <p>© 2026 Juris Nexum. Merchandise Shop.</p>
+
+<footer class="store-footer">
+
+  <div class="footer-inner">
+
+    <div class="footer-brand">
+
+      <img src="assets/jnx-logo.png" alt="Juris Nexum">
+
+      <div>
+        <strong>JURIS NEXUM</strong>
+        <span>Official Merchandise Shop</span>
+      </div>
+
+    </div>
+
+    <div class="footer-copy">
+      © 2026 Juris Nexum. All rights reserved.
+    </div>
+
+  </div>
+
 </footer>
+
 
 <script src="js/config.js"></script>
 <script src="js/shop.js"></script>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const f = document.getElementById("trackForm");
 
-  if (!f) return;
+  const form = document.getElementById("trackForm");
 
-  f.addEventListener("submit", e => {
-    e.preventDefault();
+  if (!form) return;
 
-    const n =
+  form.addEventListener("submit", event => {
+
+    event.preventDefault();
+
+    const orderNumber =
       document.getElementById("trackOrderNo").value.trim();
 
-    if (n) {
-      window.location.href =
-        "order.html?orderNo=" + encodeURIComponent(n);
-    }
+    if (!orderNumber) return;
+
+    window.location.href =
+      "order.html?orderNo=" +
+      encodeURIComponent(orderNumber);
+
   });
+
 });
 </script>
+
 </body>
 </html>
