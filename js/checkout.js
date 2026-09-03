@@ -58,9 +58,9 @@ function togglePayment() {
   const ref = document.getElementById("paymentReference");
   const proof = document.getElementById("proof");
 
-  panel.classList.toggle("hidden", method !== "InstaPay");
-  ref.required = method === "InstaPay";
-  proof.required = method === "InstaPay";
+  panel.classList.toggle("hidden", method !== "GCash");
+  ref.required = method === "GCash";
+  proof.required = method === "GCash";
 }
 
 function fileToBase64(file) {
@@ -106,7 +106,7 @@ async function submitOrder(event) {
   submitButton.textContent = "Submitting...";
 
   try {
-    const proofFile = method === "InstaPay"
+    const proofFile = method === "GCash"
       ? await fileToBase64(document.getElementById("proof").files[0])
       : null;
 
@@ -120,7 +120,7 @@ async function submitOrder(event) {
       yearLevel: document.getElementById("yearLevel").value,
       section: document.getElementById("section").value.trim(),
       paymentMethod: method,
-      paymentReference: method === "InstaPay"
+      paymentReference: method === "GCash"
         ? document.getElementById("paymentReference").value.trim() : "",
       // The server ignores browser prices and recalculates from Google Sheets.
       items: cart.map(item => ({

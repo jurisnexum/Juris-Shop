@@ -17,7 +17,7 @@ Guest checkout merchandise shop for Juris Nexum.
 - Automatic total
 - Guest checkout
 - Program, Institution, Year Level, Section
-- InstaPay QR
+- GCash QR
 - Exact computed amount displayed
 - Payment reference
 - Proof-of-payment upload to Google Drive
@@ -77,7 +77,7 @@ This is required so a buyer cannot simply edit browser JavaScript to submit a lo
 
 The uploaded proof is stored in Google Drive and its link is recorded in ORDERS.
 
-InstaPay orders are initially:
+GCash orders are initially:
 
 Payment Status = Pending Verification
 Order Status = Pending
