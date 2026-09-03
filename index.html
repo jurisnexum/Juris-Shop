@@ -62,6 +62,23 @@
 <script src="js/config.js"></script>
 <script src="js/shop.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {\n  const f=document.getElementById("trackForm");\n  f.addEventListener("submit", e => { e.preventDefault(); const n=document.getElementById("trackOrderNo").value.trim(); if(n) location.href="order.html?orderNo="+encodeURIComponent(n); });\n});\n</script>
+document.addEventListener("DOMContentLoaded", () => {
+  const f = document.getElementById("trackForm");
+
+  if (!f) return;
+
+  f.addEventListener("submit", e => {
+    e.preventDefault();
+
+    const n =
+      document.getElementById("trackOrderNo").value.trim();
+
+    if (n) {
+      window.location.href =
+        "order.html?orderNo=" + encodeURIComponent(n);
+    }
+  });
+});
+</script>
 </body>
 </html>
