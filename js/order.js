@@ -91,164 +91,6 @@ async function loadOrder() {
    PHOTObooth RECEIPT PRINTING
    ========================================================= */
 
-function showPrintingAnimation(order) {
-
-  const overlay =
-    document.getElementById("printOverlay");
-
-  if (!overlay) {
-
-    renderReceipt(order);
-
-    return;
-
-  }
-
-
-  /*
-   * Populate the small printed receipt.
-   */
-
-  const orderNumber =
-    document.getElementById(
-      "printOrderNumber"
-    );
-
-  const total =
-    document.getElementById(
-      "printTotal"
-    );
-
-  const itemsBox =
-    document.getElementById(
-      "printReceiptItems"
-    );
-
-
-  orderNumber.textContent =
-    order.orderNumber || "";
-
-
-  total.textContent =
-    peso(order.totalAmount || 0);
-
-
-  itemsBox.innerHTML = "";
-
-
-  (order.items || []).forEach(item => {
-
-    const row =
-      document.createElement("div");
-
-    row.style.display = "flex";
-    row.style.justifyContent = "space-between";
-    row.style.alignItems = "flex-start";
-    row.style.gap = "10px";
-    row.style.marginBottom = "9px";
-
-
-    const name =
-      document.createElement("div");
-
-    name.style.flex = "1";
-
-    name.innerHTML = `
-      <strong>${escapeHtml(item.name)}</strong>
-      <br>
-      <small>
-        ${escapeHtml(item.variant || "")}
-        × ${item.quantity}
-      </small>
-    `;
-
-
-    const amount =
-      document.createElement("strong");
-
-    amount.textContent =
-      peso(
-        item.subtotal ??
-        (
-          Number(item.price || 0) *
-          Number(item.quantity || 0)
-        )
-      );
-
-
-    row.appendChild(name);
-    row.appendChild(amount);
-
-    itemsBox.appendChild(row);
-
-  });
-
-
-  /*
-   * Show printer.
-   */
-
-  overlay.classList.add("show");
-
-
-  /*
-   * Small pause before the paper begins
-   * coming out.
-   */
-
-  setTimeout(() => {
-
-    overlay.classList.add("printing");
-
-  }, 400);
-
-
-  /*
-   * Receipt finishes printing.
-   */
-
-  setTimeout(() => {
-
-    const status =
-      document.getElementById(
-        "printingStatus"
-      );
-
-    if (status) {
-
-      status.textContent =
-        "Receipt printed. 🫡";
-
-    }
-
-    overlay.classList.add("finished");
-
-  }, 3400);
-
-
-  /*
-   * Remove animation and show actual receipt.
-   */
-
-  setTimeout(() => {
-
-    overlay.classList.remove(
-      "show",
-      "printing",
-      "finished"
-    );
-
-    renderReceipt(order);
-
-  }, 4600);
-
-}
-
-
-/* =========================================================
-   ORDER STATUS HELPERS
-   ========================================================= */
-
 function normalizeStatus(value) {
   return String(value || "")
     .trim()
@@ -761,5 +603,68 @@ async function handleRefreshStatus() {
 document.addEventListener("click", function (event) {
   if (event.target && event.target.id === "refreshStatusButton") {
     handleRefreshStatus();
+  }
+});
+
+
+async function downloadReceiptPDF() {
+  const receipt = document.getElementById("receipt");
+  const button = document.getElementById("downloadReceiptButton");
+
+  if (!receipt || !window.html2pdf) {
+    alert("Unable to create the PDF. Please try again.");
+    return;
+  }
+
+  const orderNumber =
+    new URLSearchParams(window.location.search).get("orderNo") ||
+    "JNX-Receipt";
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Creating PDF...";
+  }
+
+  try {
+    const options = {
+      margin: 10,
+      filename: `${orderNumber}-Receipt.pdf`,
+      image: {
+        type: "jpeg",
+        quality: 0.98
+      },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+      },
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait"
+      }
+    };
+
+    await html2pdf()
+      .set(options)
+      .from(receipt)
+      .save();
+
+  } catch (error) {
+    console.error("PDF generation failed:", error);
+    alert("Unable to download the receipt. Please try again.");
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Download Receipt as PDF";
+    }
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const button = document.getElementById("downloadReceiptButton");
+
+  if (button) {
+    button.addEventListener("click", downloadReceiptPDF);
   }
 });
