@@ -34,7 +34,7 @@ async function loadOrder() {
 
       const response =
         await fetch(
-          `${API_URL}?action=order&orderNo=${encodeURIComponent(orderNo)}`,
+          `${API_URL}?action=order&orderNo=${encodeURIComponent(orderNo)}&t=${Date.now()}`,
           {
             cache: "no-store"
           }
@@ -43,13 +43,20 @@ async function loadOrder() {
       const data =
         await response.json();
 
-      if (data.ok) {
+      if (data.ok && data.order) {
 
         order = data.order;
 
         localStorage.setItem(
           ORDER_KEY,
           JSON.stringify(order)
+        );
+
+      } else {
+
+        console.warn(
+          "Order lookup failed:",
+          data.error || "Order not found."
         );
 
       }
@@ -61,28 +68,253 @@ async function loadOrder() {
         err
       );
 
+      /*
+       * If the server cannot be reached, use the locally
+       * saved order as a fallback.
+       */
+      try {
+        const saved =
+          JSON.parse(
+            localStorage.getItem(ORDER_KEY) || "null"
+          );
+
+        if (
+          saved &&
+          saved.orderNumber === orderNo
+        ) {
+          order = saved;
+        }
+
+      } catch (localError) {
+        console.warn(
+          "Could not load saved order:",
+          localError
+        );
+      }
+
     }
 
   }
 
 
   /*
-   * If this is a newly created order,
-   * show the printer animation first.
+   * Determine whether this is the order that was JUST created.
+   *
+   * sessionStorage is used so the printing animation does not
+   * replay every time the customer refreshes or tracks the order.
    */
-  if (
-    order &&
-    orderNo &&
-    order.orderNumber === orderNo
-  ) {
+  const newOrderNumber =
+    sessionStorage.getItem(
+      "jnx_new_order_animation"
+    );
 
-    setTimeout(() => showPrintingAnimation(order), 150);
+  const isNewOrder =
+    Boolean(
+      order &&
+      orderNo &&
+      newOrderNumber === orderNo
+    );
+
+
+  if (isNewOrder) {
+
+    // Consume the flag immediately.
+    // Refreshing the page will therefore NOT replay the animation.
+    sessionStorage.removeItem(
+      "jnx_new_order_animation"
+    );
+
+    setTimeout(() => {
+      showPrintingAnimation(order);
+    }, 150);
 
   } else {
 
     renderReceipt(order);
 
   }
+
+}
+
+
+/* =========================================================
+   RECEIPT PRINTING ANIMATION
+   ========================================================= */
+
+function showPrintingAnimation(order) {
+
+  const overlay =
+    document.getElementById("printOverlay");
+
+  const printOrderNumber =
+    document.getElementById("printOrderNumber");
+
+  const printReceiptItems =
+    document.getElementById("printReceiptItems");
+
+  const printTotal =
+    document.getElementById("printTotal");
+
+  const printingText =
+    document.getElementById("printingText");
+
+  const printingStatus =
+    document.getElementById("printingStatus");
+
+  const printedPaper =
+    document.getElementById("printedPaper");
+
+
+  if (!overlay) {
+    renderReceipt(order);
+    return;
+  }
+
+
+  /*
+   * Populate the small animated receipt.
+   */
+  if (printOrderNumber) {
+    printOrderNumber.textContent =
+      order.orderNumber || "";
+  }
+
+
+  if (printReceiptItems) {
+
+    printReceiptItems.innerHTML =
+      (order.items || [])
+        .map(item => `
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            margin:6px 0;
+            font-size:12px;
+          ">
+            <span>
+              ${escapeHtml(item.name)}
+              ${item.variant
+                ? ` (${escapeHtml(item.variant)})`
+                : ""}
+              ×${Number(item.quantity) || 0}
+            </span>
+
+            <strong>
+              ${peso(
+                Number(
+                  item.subtotal ??
+                  (
+                    Number(item.unitPrice || item.price || 0) *
+                    Number(item.quantity || 0)
+                  )
+                )
+              )}
+            </strong>
+          </div>
+        `)
+        .join("");
+
+  }
+
+
+  if (printTotal) {
+    printTotal.textContent =
+      peso(Number(order.totalAmount) || 0);
+  }
+
+
+  if (printingText) {
+    printingText.textContent =
+      "Printing your receipt...";
+  }
+
+
+  if (printingStatus) {
+    printingStatus.textContent =
+      "Printing your JNX receipt...";
+  }
+
+
+  /*
+   * Reset animation state in case the page is revisited
+   * within the same browser session.
+   */
+  if (printedPaper) {
+    printedPaper.style.animation = "none";
+
+    // Force browser reflow so the animation can restart.
+    void printedPaper.offsetWidth;
+
+    printedPaper.style.animation = "";
+  }
+
+
+  /*
+   * Show printer overlay.
+   */
+  overlay.style.display = "flex";
+  overlay.style.visibility = "visible";
+  overlay.style.opacity = "1";
+  overlay.style.pointerEvents = "auto";
+
+
+  /*
+   * Animation sequence:
+   *
+   * 0.0s  Printer appears
+   * 0.5s  Printing message
+   * 1.0s  Paper starts coming out
+   * 3.5s  Receipt finishes printing
+   * 4.2s  Overlay fades
+   * 4.8s  Actual receipt appears
+   */
+  setTimeout(() => {
+
+    if (printingText) {
+      printingText.textContent =
+        "Receipt printing...";
+    }
+
+    if (printingStatus) {
+      printingStatus.textContent =
+        "Printing your JNX receipt...";
+    }
+
+  }, 500);
+
+
+  setTimeout(() => {
+
+    if (printingText) {
+      printingText.textContent =
+        "Receipt printed!";
+    }
+
+    if (printingStatus) {
+      printingStatus.textContent =
+        "Your receipt is ready!";
+
+    }
+
+  }, 3500);
+
+
+  setTimeout(() => {
+
+    overlay.style.opacity = "0";
+
+  }, 4100);
+
+
+  setTimeout(() => {
+
+    overlay.style.display = "none";
+    overlay.style.pointerEvents = "none";
+
+    renderReceipt(order);
+
+  }, 4700);
 
 }
 

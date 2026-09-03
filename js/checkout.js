@@ -160,6 +160,14 @@ async function submitOrder(event) {
     }));
 
     localStorage.removeItem(CART_KEY);
+
+    // Tell order.html that this order was just successfully created.
+    // This triggers the receipt printing animation only once.
+    sessionStorage.setItem(
+      "jnx_new_order_animation",
+      result.orderNumber
+    );
+
     window.location.href = `order.html?orderNo=${encodeURIComponent(result.orderNumber)}`;
   } catch (err) {
     alert(err.message || "Something went wrong.");
