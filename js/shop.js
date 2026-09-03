@@ -20,15 +20,75 @@ const FALLBACK_PRODUCTS = [
     description: "JNX Tote Bag",
     price: 130,
     memberPrice: 110,
-    stock: 100,
+    stock: 20,
     image: "2.png",
     variants: ["Small", "Medium", "Large", "XL"],
     variantDetails: [
-      { variant: "Small", price: 130, memberPrice: 110, stock: 5, status: "Available" },
-      { variant: "Medium", price: 140, memberPrice: 120, stock: 5, status: "Available" },
-      { variant: "Large", price: 150, memberPrice: 130, stock: 5, status: "Available" },
-      { variant: "XL", price: 160, memberPrice: 140, stock: 5, status: "Available" }
+      {
+        variant: "Small",
+        price: 130,
+        memberPrice: 110,
+        stock: 5,
+        status: "Available"
+      },
+      {
+        variant: "Medium",
+        price: 140,
+        memberPrice: 120,
+        stock: 5,
+        status: "Available"
+      },
+      {
+        variant: "Large",
+        price: 150,
+        memberPrice: 130,
+        stock: 5,
+        status: "Available"
+      },
+      {
+        variant: "XL",
+        price: 160,
+        memberPrice: 140,
+        stock: 5,
+        status: "Available"
+      }
     ],
+    status: "Available"
+  },
+  {
+    id: "JNX003",
+    name: "COFFEE DIGEST",
+    category: "Bags",
+    description: "JNX Tote Bag",
+    price: 130,
+    memberPrice: 110,
+    stock: 100,
+    image: "5.png",
+    variants: ["S", "M", "L", "XL"],
+    status: "Available"
+  },
+  {
+    id: "JNX004",
+    name: "BONA FIDE",
+    category: "Bags",
+    description: "JNX Tote Bag",
+    price: 130,
+    memberPrice: 110,
+    stock: 100,
+    image: "3.png",
+    variants: ["S", "M", "L", "XL"],
+    status: "Available"
+  },
+  {
+    id: "JNX005",
+    name: "ART. 1156",
+    category: "Bags",
+    description: "JNX Tote Bag",
+    price: 130,
+    memberPrice: 110,
+    stock: 100,
+    image: "4.png",
+    variants: ["S", "M", "L", "XL"],
     status: "Available"
   }
 ];
