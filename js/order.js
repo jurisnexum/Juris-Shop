@@ -738,19 +738,28 @@ function escapeHtml(value) {
    START
    ========================================================= */
 
-document.addEventListener(
-  "DOMContentLoaded",
-  async () => {
-    await loadOrder();
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadOrder();
+});
 
-    const refreshButton =
-      document.getElementById("refreshStatusButton");
+async function handleRefreshStatus() {
+  const button = document.getElementById("refreshStatusButton");
 
-    if (refreshButton) {
-      refreshButton.addEventListener(
-        "click",
-        refreshOrder
-      );
-    }
+  if (!button) return;
+
+  button.disabled = true;
+  button.textContent = "Refreshing...";
+
+  try {
+    await refreshOrder();
+  } finally {
+    button.disabled = false;
+    button.textContent = "Refresh Status";
   }
-);
+}
+
+document.addEventListener("click", function (event) {
+  if (event.target && event.target.id === "refreshStatusButton") {
+    handleRefreshStatus();
+  }
+});
