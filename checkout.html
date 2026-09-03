@@ -28,6 +28,7 @@
 
       <form id="checkoutForm">
         <div class="form-grid">
+
           <label>
             Full Name *
             <input id="fullName" required autocomplete="name">
@@ -64,6 +65,36 @@
             Section *
             <input id="section" required placeholder="e.g. A">
           </label>
+        </div>
+
+        <div class="member-box">
+          <div>
+            <p class="eyebrow">JNX MEMBERSHIP</p>
+            <h3>Are you a Juris Nexum member?</h3>
+            <p class="muted">
+              Enter your Member ID to verify your membership and automatically apply your member prices.
+            </p>
+          </div>
+
+          <div class="member-verify-row">
+            <input
+              id="memberId"
+              placeholder="Enter your Member ID"
+              autocomplete="off"
+            >
+            <button
+              type="button"
+              class="secondary-button"
+              id="verifyMemberButton"
+            >
+              Verify Member
+            </button>
+          </div>
+
+          <div id="memberMessage" class="member-message"></div>
+        </div>
+
+        <div class="form-grid">
           <label>
             Mode of Payment *
             <select id="paymentMethod" required>
@@ -106,6 +137,16 @@
       <p class="eyebrow">YOUR ORDER</p>
       <h2>Order Summary</h2>
       <div id="cartItems"></div>
+      <div id="regularTotalRow" class="summary-total">
+        <span>Regular Total</span>
+        <strong id="regularCartTotal">₱0.00</strong>
+      </div>
+
+      <div id="discountRow" class="summary-total hidden">
+        <span>Member Discount</span>
+        <strong id="discountAmount">-₱0.00</strong>
+      </div>
+
       <div class="summary-total">
         <span>Total</span>
         <strong id="cartTotal">₱0.00</strong>

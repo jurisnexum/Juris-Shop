@@ -266,7 +266,7 @@ footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px
   Only the visible portion grows downward.
 */
 .print-overlay.printing .printed-paper {
-  animation: paperFeedDown 4.8s cubic-bezier(.22,.61,.36,1) forwards;
+  animation: paperFeedDown 3.8s cubic-bezier(.22,.61,.36,1) forwards;
 }
 
 @keyframes paperFeedDown {
@@ -493,6 +493,59 @@ footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px
   pointer-events: auto !important;
 }
 
-.print-overlay {
-  pointer-events: none !important;
+/* ============================================================
+   JNX MEMBER DISCOUNT
+   ============================================================ */
+
+.member-box {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.025);
+}
+
+.member-box h3 {
+  margin: 4px 0 6px;
+}
+
+.member-verify-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.member-verify-row input {
+  flex: 1;
+}
+
+.member-message {
+  margin-top: 10px;
+  min-height: 20px;
+  font-size: 14px;
+}
+
+.member-message.success {
+  color: #18794e;
+}
+
+.member-message.error {
+  color: #b42318;
+}
+
+.member-price-label {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .08);
+}
+
+@media (max-width: 600px) {
+  .member-verify-row {
+    flex-direction: column;
+  }
 }

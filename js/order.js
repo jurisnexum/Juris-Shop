@@ -3,7 +3,7 @@ const ORDER_KEY = "jnx_merch_last_order_v1";
 const peso = n => new Intl.NumberFormat("en-PH", {
   style: "currency",
   currency: "PHP"
-}).format(n);
+}).format(Number(n) || 0);
 
 
 /* =========================================================
@@ -12,70 +12,63 @@ const peso = n => new Intl.NumberFormat("en-PH", {
 
 async function loadOrder() {
 
-  const params =
-    new URLSearchParams(location.search);
+  const params = new URLSearchParams(location.search);
+  const orderNo = params.get("orderNo");
 
-  const orderNo =
-    params.get("orderNo");
+  if (!orderNo) {
+    renderReceipt(null);
+    return;
+  }
 
   let order = null;
 
   /*
-   * Google Sheets is the source of truth.
-   * Always fetch the order using the order number.
+   * GOOGLE SHEETS IS THE SOURCE OF TRUTH.
    */
   if (
     API_URL &&
-    !API_URL.includes("PASTE_YOUR") &&
-    orderNo
+    !API_URL.includes("PASTE_YOUR")
   ) {
 
     try {
 
-      const response =
-        await fetch(
-          `${API_URL}?action=order&orderNo=${encodeURIComponent(orderNo)}&t=${Date.now()}`,
-          {
-            cache: "no-store"
-          }
-        );
+      const response = await fetch(
+        `${API_URL}?action=order&orderNo=${encodeURIComponent(orderNo)}&t=${Date.now()}`,
+        {
+          cache: "no-store"
+        }
+      );
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
-      if (data.ok && data.order) {
-
-        order = data.order;
-
-        localStorage.setItem(
-          ORDER_KEY,
-          JSON.stringify(order)
-        );
-
-      } else {
-
-        console.warn(
-          "Order lookup failed:",
+      if (!data.ok || !data.order) {
+        throw new Error(
           data.error || "Order not found."
         );
-
       }
 
-    } catch (err) {
+      order = data.order;
+
+      localStorage.setItem(
+        ORDER_KEY,
+        JSON.stringify(order)
+      );
+
+    } catch (error) {
 
       console.warn(
-        "Could not refresh order from server:",
-        err
+        "Could not load order from Google Sheets:",
+        error
       );
 
       /*
-       * If the server cannot be reached, use the locally
-       * saved order as a fallback.
+       * FALLBACK TO LOCAL ORDER
        */
       try {
+
         const saved =
           JSON.parse(
-            localStorage.getItem(ORDER_KEY) || "null"
+            localStorage.getItem(ORDER_KEY)
           );
 
         if (
@@ -86,10 +79,12 @@ async function loadOrder() {
         }
 
       } catch (localError) {
+
         console.warn(
           "Could not load saved order:",
           localError
         );
+
       }
 
     }
@@ -98,35 +93,11 @@ async function loadOrder() {
 
 
   /*
-   * Determine whether this is the order that was JUST created.
-   *
-   * sessionStorage is used so the printing animation does not
-   * replay every time the customer refreshes or tracks the order.
+   * JNX RECEIPT PRINTING ANIMATION
    */
-  const newOrderNumber =
-    sessionStorage.getItem(
-      "jnx_new_order_animation"
-    );
+  if (order) {
 
-  const isNewOrder =
-    Boolean(
-      order &&
-      orderNo &&
-      newOrderNumber === orderNo
-    );
-
-
-  if (isNewOrder) {
-
-    // Consume the flag immediately.
-    // Refreshing the page will therefore NOT replay the animation.
-    sessionStorage.removeItem(
-      "jnx_new_order_animation"
-    );
-
-    setTimeout(() => {
-      showPrintingAnimation(order);
-    }, 150);
+    showPrintingAnimation(order);
 
   } else {
 
@@ -144,252 +115,569 @@ async function loadOrder() {
 function showPrintingAnimation(order) {
 
   const overlay =
-    document.getElementById("printOverlay");
+    document.getElementById(
+      "printOverlay"
+    );
 
-  const printOrderNumber =
-    document.getElementById("printOrderNumber");
-
-  const printReceiptItems =
-    document.getElementById("printReceiptItems");
-
-  const printTotal =
-    document.getElementById("printTotal");
-
-  const printingText =
-    document.getElementById("printingText");
-
-  const printingStatus =
-    document.getElementById("printingStatus");
+  const printer =
+    overlay
+      ? overlay.querySelector(".printer")
+      : null;
 
   const printedPaper =
-    document.getElementById("printedPaper");
+    document.getElementById(
+      "printedPaper"
+    );
+
+  const printOrderNumber =
+    document.getElementById(
+      "printOrderNumber"
+    );
+
+  const printReceiptItems =
+    document.getElementById(
+      "printReceiptItems"
+    );
+
+  const printTotal =
+    document.getElementById(
+      "printTotal"
+    );
+
+  const printingText =
+    document.getElementById(
+      "printingText"
+    );
+
+  const printingStatus =
+    document.getElementById(
+      "printingStatus"
+    );
 
 
   if (!overlay) {
+
+    console.error(
+      "JNX PRINTING ANIMATION: #printOverlay not found."
+    );
+
     renderReceipt(order);
     return;
+
   }
 
 
   /*
-   * Populate the small animated receipt.
+   * ORDER NUMBER
    */
   if (printOrderNumber) {
+
     printOrderNumber.textContent =
       order.orderNumber || "";
+
   }
 
 
+  /*
+   * ITEMS
+   */
   if (printReceiptItems) {
 
-    printReceiptItems.innerHTML =
-      (order.items || [])
-        .map(item => `
+    let html = "";
+
+    (order.items || []).forEach(
+      item => {
+
+        const regularUnitPrice =
+          Number(
+            item.regularUnitPrice ??
+            item.originalUnitPrice ??
+            item.unitPrice ??
+            item.price ??
+            0
+          );
+
+        const unitPrice =
+          Number(
+            item.unitPrice ??
+            item.price ??
+            0
+          );
+
+        const quantity =
+          Number(
+            item.quantity
+          ) || 0;
+
+        const subtotal =
+          Number(
+            item.subtotal ??
+            unitPrice * quantity
+          ) || 0;
+
+        const isMember =
+          String(
+            order.pricingType || ""
+          )
+            .toLowerCase()
+            .includes("member");
+
+        html += `
           <div style="
-            display:flex;
-            justify-content:space-between;
-            gap:10px;
-            margin:6px 0;
+            margin:7px 0;
             font-size:12px;
           ">
-            <span>
-              ${escapeHtml(item.name)}
-              ${item.variant
-                ? ` (${escapeHtml(item.variant)})`
-                : ""}
-              ×${Number(item.quantity) || 0}
-            </span>
 
-            <strong>
-              ${peso(
-                Number(
-                  item.subtotal ??
-                  (
-                    Number(item.unitPrice || item.price || 0) *
-                    Number(item.quantity || 0)
-                  )
-                )
-              )}
-            </strong>
+            <div style="
+              display:flex;
+              justify-content:space-between;
+              gap:10px;
+            ">
+
+              <span>
+                ${escapeHtml(item.name)}
+                ${item.variant
+                  ? ` (${escapeHtml(item.variant)})`
+                  : ""}
+                ×${quantity}
+              </span>
+
+              <strong>
+                ${peso(subtotal)}
+              </strong>
+
+            </div>
+
+            ${
+              isMember && regularUnitPrice > unitPrice
+                ? `
+                  <div style="
+                    font-size:10px;
+                    opacity:.75;
+                    margin-top:2px;
+                  ">
+                    Regular: ${peso(regularUnitPrice)}
+                    &nbsp;→&nbsp;
+                    Member: ${peso(unitPrice)}
+                  </div>
+                `
+                : `
+                  <div style="
+                    font-size:10px;
+                    opacity:.75;
+                    margin-top:2px;
+                  ">
+                    Unit Price: ${peso(unitPrice)}
+                  </div>
+                `
+            }
+
           </div>
-        `)
-        .join("");
+        `;
+
+      }
+    );
+
+    /*
+     * FINANCIAL SUMMARY
+     */
+    const regularTotal =
+      Number(
+        order.regularTotal ??
+        order.totalAmount ??
+        0
+      ) || 0;
+
+    const totalAmount =
+      Number(
+        order.totalAmount
+      ) || 0;
+
+    const discountAmount =
+      Number(
+        order.discountAmount
+      ) || Math.max(
+        0,
+        regularTotal - totalAmount
+      );
+
+    const isMember =
+      String(
+        order.pricingType || ""
+      )
+        .toLowerCase()
+        .includes("member");
+
+    html += `
+      <div style="
+        border-top:1px dashed #999;
+        margin-top:8px;
+        padding-top:8px;
+        font-size:11px;
+      ">
+
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          margin:3px 0;
+        ">
+          <span>Regular Total</span>
+          <span>${peso(regularTotal)}</span>
+        </div>
+
+        ${
+          isMember
+            ? `
+              <div style="
+                display:flex;
+                justify-content:space-between;
+                margin:3px 0;
+              ">
+                <span>Member Discount</span>
+                <span>-${peso(discountAmount)}</span>
+              </div>
+            `
+            : ""
+        }
+
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          margin-top:6px;
+          font-size:13px;
+          font-weight:700;
+        ">
+          <span>TOTAL</span>
+          <span>${peso(totalAmount)}</span>
+        </div>
+
+      </div>
+    `;
+
+    printReceiptItems.innerHTML =
+      html;
 
   }
 
 
+  /*
+   * FINAL TOTAL
+   */
   if (printTotal) {
+
     printTotal.textContent =
-      peso(Number(order.totalAmount) || 0);
+      peso(
+        Number(
+          order.totalAmount
+        ) || 0
+      );
+
+  }
+
+
+  /*
+   * RESET ANIMATION
+   */
+  overlay.classList.remove(
+    "show",
+    "printing",
+    "finished"
+  );
+
+  overlay.style.display =
+    "flex";
+
+  overlay.style.visibility =
+    "visible";
+
+  overlay.style.opacity =
+    "1";
+
+  overlay.style.pointerEvents =
+    "auto";
+
+
+  if (printedPaper) {
+
+    printedPaper.style.animation =
+      "none";
+
+    printedPaper.style.clipPath =
+      "inset(0 0 100% 0)";
+
+    printedPaper.style.transform =
+      "translateY(0)";
+
+    void printedPaper.offsetWidth;
+
   }
 
 
   if (printingText) {
+
     printingText.textContent =
       "Printing your receipt...";
+
   }
 
 
   if (printingStatus) {
+
     printingStatus.textContent =
       "Printing your JNX receipt...";
+
   }
 
 
   /*
-   * Reset animation state in case the page is revisited
-   * within the same browser session.
+   * START PRINTER
    */
-  if (printedPaper) {
-    printedPaper.style.animation = "none";
+  requestAnimationFrame(() => {
 
-    // Force browser reflow so the animation can restart.
-    void printedPaper.offsetWidth;
+    overlay.classList.add(
+      "show",
+      "printing"
+    );
 
-    printedPaper.style.animation = "";
-  }
+
+    if (printedPaper) {
+
+      printedPaper.style.animation =
+        "paperFeedDown 3.8s cubic-bezier(.22,.61,.36,1) forwards";
+
+    }
+
+  });
 
 
   /*
-   * Show printer overlay.
-   */
-  overlay.style.display = "flex";
-  overlay.style.visibility = "visible";
-  overlay.style.opacity = "1";
-  overlay.style.pointerEvents = "auto";
-
-
-  /*
-   * Animation sequence:
-   *
-   * 0.0s  Printer appears
-   * 0.5s  Printing message
-   * 1.0s  Paper starts coming out
-   * 3.5s  Receipt finishes printing
-   * 4.2s  Overlay fades
-   * 4.8s  Actual receipt appears
+   * STATUS
    */
   setTimeout(() => {
 
     if (printingText) {
+
       printingText.textContent =
         "Receipt printing...";
+
     }
 
-    if (printingStatus) {
-      printingStatus.textContent =
-        "Printing your JNX receipt...";
-    }
-
-  }, 500);
+  }, 800);
 
 
+  /*
+   * FINISHED
+   */
   setTimeout(() => {
 
     if (printingText) {
+
       printingText.textContent =
         "Receipt printed!";
+
     }
 
     if (printingStatus) {
+
       printingStatus.textContent =
         "Your receipt is ready!";
 
     }
 
-  }, 3500);
+  }, 3800);
 
 
   setTimeout(() => {
 
-    overlay.style.opacity = "0";
+    overlay.classList.add(
+      "finished"
+    );
 
-  }, 4100);
+  }, 4000);
 
 
   setTimeout(() => {
 
-    overlay.style.display = "none";
-    overlay.style.pointerEvents = "none";
+    overlay.style.opacity =
+      "0";
+
+  }, 4500);
+
+
+  /*
+   * REVEAL REAL RECEIPT
+   */
+  setTimeout(() => {
+
+    overlay.classList.remove(
+      "show",
+      "printing",
+      "finished"
+    );
+
+    overlay.style.display =
+      "none";
+
+    overlay.style.visibility =
+      "hidden";
+
+    overlay.style.opacity =
+      "0";
+
+    overlay.style.pointerEvents =
+      "none";
 
     renderReceipt(order);
 
-  }, 4700);
+  }, 5000);
 
 }
 
 
 /* =========================================================
-   PHOTObooth RECEIPT PRINTING
+   STATUS HELPERS
    ========================================================= */
 
 function normalizeStatus(value) {
-  return String(value || "")
+
+  return String(
+    value || ""
+  )
     .trim()
     .toLowerCase()
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ");
+    .replace(
+      /[_-]+/g,
+      " "
+    )
+    .replace(
+      /\s+/g,
+      " "
+    );
+
 }
 
 
 function getStatusStage(order) {
-  const paymentStatus = normalizeStatus(order.paymentStatus);
-  const orderStatus = normalizeStatus(order.orderStatus);
+
+  const paymentStatus =
+    normalizeStatus(
+      order.paymentStatus
+    );
+
+  const orderStatus =
+    normalizeStatus(
+      order.orderStatus
+    );
+
 
   if (
-    orderStatus.includes("completed") ||
-    orderStatus.includes("complete")
+    orderStatus.includes(
+      "completed"
+    ) ||
+    orderStatus.includes(
+      "complete"
+    )
   ) {
+
     return 5;
+
   }
 
+
   if (
-    orderStatus.includes("ready") ||
-    orderStatus.includes("pickup") ||
-    orderStatus.includes("pick up")
+    orderStatus.includes(
+      "ready"
+    ) ||
+    orderStatus.includes(
+      "pickup"
+    ) ||
+    orderStatus.includes(
+      "pick up"
+    )
   ) {
+
     return 4;
+
   }
 
+
   if (
-    orderStatus.includes("processing") ||
-    orderStatus.includes("preparing")
+    orderStatus.includes(
+      "processing"
+    ) ||
+    orderStatus.includes(
+      "preparing"
+    )
   ) {
+
     return 3;
+
   }
 
+
   if (
-    paymentStatus.includes("verified") ||
-    paymentStatus.includes("paid") ||
-    paymentStatus.includes("confirmed") ||
-    paymentStatus.includes("approved")
+    paymentStatus.includes(
+      "verified"
+    ) ||
+    paymentStatus.includes(
+      "paid"
+    ) ||
+    paymentStatus.includes(
+      "confirmed"
+    ) ||
+    paymentStatus.includes(
+      "approved"
+    )
   ) {
+
     return 2;
+
   }
+
 
   return 1;
+
 }
 
 
-function renderStatusTimeline(order) {
-  const currentStage = getStatusStage(order);
+function renderStatusTimeline(
+  order
+) {
+
+  const currentStage =
+    getStatusStage(
+      order
+    );
+
 
   const stages = [
+
     "Order Placed",
+
     "Payment Verified",
+
     "Processing",
+
     "Ready for Pickup",
+
     "Completed"
+
   ];
 
+
   return `
-    <div class="order-tracking-box" style="
-      margin-top:30px;
-      padding:22px;
-      border:1px solid #e5e1ea;
-      border-radius:16px;
-      background:#faf9fc;
-    ">
+
+    <div
+      class="order-tracking-box"
+      style="
+        margin-top:30px;
+        padding:22px;
+        border:1px solid #e5e1ea;
+        border-radius:16px;
+        background:#faf9fc;
+      "
+    >
+
       <div style="
         display:flex;
         justify-content:space-between;
@@ -398,73 +686,132 @@ function renderStatusTimeline(order) {
         margin-bottom:20px;
         flex-wrap:wrap;
       ">
+
         <div>
-          <strong style="font-size:18px;">
+
+          <strong
+            style="font-size:18px;"
+          >
             Order Tracking
           </strong>
+
           <div style="
             margin-top:4px;
             color:#777;
             font-size:13px;
           ">
+
             Current status:
+
             <strong>
-              ${escapeHtml(order.orderStatus || "Pending")}
+              ${escapeHtml(
+                order.orderStatus ||
+                "Pending"
+              )}
             </strong>
+
           </div>
+
         </div>
+
 
         <button
           type="button"
           class="secondary-button"
-          id="refreshStatusButton" onclick="handleRefreshStatus()"
+          id="refreshStatusButton"
+          onclick="handleRefreshStatus()"
         >
           Refresh Status
         </button>
+
       </div>
+
 
       <div style="
         display:flex;
         flex-direction:column;
         gap:14px;
       ">
-        ${stages.map((stage, index) => {
-          const stageNumber = index + 1;
-          const completed = stageNumber <= currentStage;
 
-          return `
-            <div style="
-              display:flex;
-              align-items:center;
-              gap:12px;
-            ">
+        ${stages.map(
+          (stage, index) => {
+
+            const stageNumber =
+              index + 1;
+
+            const completed =
+              stageNumber <=
+              currentStage;
+
+
+            return `
+
               <div style="
-                width:30px;
-                height:30px;
-                min-width:30px;
-                border-radius:50%;
                 display:flex;
                 align-items:center;
-                justify-content:center;
-                font-weight:700;
-                background:${completed ? "#111" : "#e9e6ed"};
-                color:${completed ? "#fff" : "#777"};
+                gap:12px;
               ">
-                ${completed ? "✓" : stageNumber}
+
+                <div style="
+                  width:30px;
+                  height:30px;
+                  min-width:30px;
+                  border-radius:50%;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  font-weight:700;
+                  background:${
+                    completed
+                      ? "#111"
+                      : "#e9e6ed"
+                  };
+                  color:${
+                    completed
+                      ? "#fff"
+                      : "#777"
+                  };
+                ">
+
+                  ${
+                    completed
+                      ? "✓"
+                      : stageNumber
+                  }
+
+                </div>
+
+
+                <div style="
+                  font-weight:${
+                    completed
+                      ? "700"
+                      : "500"
+                  };
+                  color:${
+                    completed
+                      ? "#111"
+                      : "#777"
+                  };
+                ">
+
+                  ${stage}
+
+                </div>
+
               </div>
 
-              <div style="
-                font-weight:${completed ? "700" : "500"};
-                color:${completed ? "#111" : "#777"};
-              ">
-                ${stage}
-              </div>
-            </div>
-          `;
-        }).join("")}
+            `;
+
+          }
+        ).join("")}
+
       </div>
+
     </div>
+
   `;
+
 }
 
 
@@ -473,24 +820,42 @@ function renderStatusTimeline(order) {
    ========================================================= */
 
 async function refreshOrder() {
+
   const button =
-    document.getElementById("refreshStatusButton");
+    document.getElementById(
+      "refreshStatusButton"
+    );
+
 
   if (button) {
-    button.disabled = true;
-    button.textContent = "Refreshing...";
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Refreshing...";
+
   }
 
+
   try {
+
     const params =
-      new URLSearchParams(location.search);
+      new URLSearchParams(
+        location.search
+      );
+
 
     const orderNo =
-      params.get("orderNo");
+      params.get(
+        "orderNo"
+      );
+
 
     if (!orderNo) {
       return;
     }
+
 
     const response =
       await fetch(
@@ -500,21 +865,36 @@ async function refreshOrder() {
         }
       );
 
+
     const data =
       await response.json();
 
-    if (!data.ok || !data.order) {
+
+    if (
+      !data.ok ||
+      !data.order
+    ) {
+
       throw new Error(
-        data.error || "Order not found."
+        data.error ||
+        "Order not found."
       );
+
     }
+
 
     localStorage.setItem(
       ORDER_KEY,
-      JSON.stringify(data.order)
+      JSON.stringify(
+        data.order
+      )
     );
 
-    renderReceipt(data.order);
+
+    renderReceipt(
+      data.order
+    );
+
 
   } catch (err) {
 
@@ -523,18 +903,26 @@ async function refreshOrder() {
       err
     );
 
+
     alert(
       "Unable to refresh the order status right now. Please try again."
     );
 
+
   } finally {
 
     if (button) {
-      button.disabled = false;
-      button.textContent = "Refresh Status";
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "Refresh Status";
+
     }
 
   }
+
 }
 
 
@@ -542,7 +930,9 @@ async function refreshOrder() {
    ACTUAL RECEIPT
    ========================================================= */
 
-function renderReceipt(order) {
+function renderReceipt(
+  order
+) {
 
   const box =
     document.getElementById(
@@ -562,125 +952,435 @@ function renderReceipt(order) {
   }
 
 
+  /*
+   * MEMBER / REGULAR
+   */
+  const isMember =
+    String(
+      order.pricingType || ""
+    )
+      .toLowerCase()
+      .includes(
+        "member"
+      );
+
+
+  /*
+   * FINANCIAL TOTALS
+   */
+  const totalAmount =
+    Number(
+      order.totalAmount
+    ) || 0;
+
+
+  const regularTotal =
+    Number(
+      order.regularTotal ??
+      totalAmount
+    ) || 0;
+
+
+  const discountAmount =
+    Number(
+      order.discountAmount
+    ) || Math.max(
+      0,
+      regularTotal -
+      totalAmount
+    );
+
+
+  /*
+   * ITEMS
+   */
   const itemRows =
     (order.items || [])
-      .map(item => `
+      .map(
+        item => {
 
-        <tr>
-
-          <td>
-            ${escapeHtml(item.name)}
-            <br>
-            <small>
-              ${escapeHtml(item.variant || "")}
-            </small>
-          </td>
-
-          <td>
-            ${item.quantity}
-          </td>
-
-          <td>
-            ${peso(
+          const unitPrice =
+            Number(
               item.unitPrice ??
-              item.price
-            )}
-          </td>
+              item.price ??
+              0
+            );
 
-          <td>
-            ${peso(
+
+          const quantity =
+            Number(
+              item.quantity
+            ) || 0;
+
+
+          const subtotal =
+            Number(
               item.subtotal ??
-              (
-                item.price *
-                item.quantity
-              )
-            )}
-          </td>
+              unitPrice *
+              quantity
+            ) || 0;
 
-        </tr>
 
-      `)
+          /*
+           * The current backend does not store
+           * each item's original regular unit price.
+           *
+           * We calculate it proportionally from
+           * the order regular total when possible.
+           *
+           * If member pricing is active and the
+           * member price is lower, show a clear
+           * member-price label.
+           */
+          const memberLabel =
+            isMember
+              ? `
+                <small style="
+                  display:block;
+                  margin-top:3px;
+                  color:#6d6875;
+                ">
+                  Member Price
+                </small>
+              `
+              : "";
+
+
+          return `
+
+            <tr>
+
+              <td>
+
+                ${escapeHtml(
+                  item.name
+                )}
+
+                <br>
+
+                <small>
+                  ${
+                    item.variant
+                      ? escapeHtml(
+                          item.variant
+                        )
+                      : ""
+                  }
+                </small>
+
+                ${memberLabel}
+
+              </td>
+
+
+              <td>
+                ${quantity}
+              </td>
+
+
+              <td>
+
+                ${peso(
+                  unitPrice
+                )}
+
+                ${
+                  isMember
+                    ? `
+                      <small style="
+                        display:block;
+                        color:#6d6875;
+                      ">
+                        member
+                      </small>
+                    `
+                    : ""
+                }
+
+              </td>
+
+
+              <td>
+                ${peso(
+                  subtotal
+                )}
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      )
       .join("");
+
+
+  /*
+   * MEMBERSHIP SECTION
+   */
+  const membershipSection =
+    isMember
+      ? `
+
+        <div style="
+          margin-top:20px;
+          padding:18px;
+          border:1px solid #e5e1ea;
+          border-radius:14px;
+          background:#faf9fc;
+        ">
+
+          <h3 style="
+            margin:0 0 12px;
+          ">
+            JNX Membership
+          </h3>
+
+
+          <div style="
+            display:grid;
+            grid-template-columns:
+              1fr 1fr;
+            gap:14px;
+          ">
+
+            <div>
+
+              <strong>
+                Member ID
+              </strong>
+
+              <br>
+
+              ${escapeHtml(
+                order.memberId ||
+                ""
+              )}
+
+            </div>
+
+
+            <div>
+
+              <strong>
+                Member Name
+              </strong>
+
+              <br>
+
+              ${escapeHtml(
+                order.memberName ||
+                order.fullName ||
+                ""
+              )}
+
+            </div>
+
+
+            <div>
+
+              <strong>
+                Pricing Type
+              </strong>
+
+              <br>
+
+              <span class="status-badge">
+                JNX Member
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `
+      : `
+
+        <div style="
+          margin-top:20px;
+          padding:16px;
+          border:1px solid #e5e1ea;
+          border-radius:14px;
+          background:#faf9fc;
+        ">
+
+          <strong>
+            Pricing Type:
+          </strong>
+
+          Regular
+
+        </div>
+
+      `;
 
 
   box.innerHTML = `
 
-    <div
-      style="
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:20px;
-        margin-top:20px;
-      "
-    >
+    <!-- ORDER / BUYER INFORMATION -->
+
+    <div style="
+      display:grid;
+      grid-template-columns:
+        1fr 1fr;
+      gap:20px;
+      margin-top:20px;
+    ">
+
 
       <div>
-        <strong>Order No.</strong>
+
+        <strong>
+          Order No.
+        </strong>
+
         <br>
+
         ${escapeHtml(
           order.orderNumber
         )}
+
       </div>
 
+
       <div>
-        <strong>Date</strong>
+
+        <strong>
+          Date
+        </strong>
+
         <br>
+
         ${escapeHtml(
           order.timestamp ||
           order.createdAt ||
           ""
         )}
+
       </div>
 
+
       <div>
-        <strong>Buyer</strong>
+
+        <strong>
+          Buyer
+        </strong>
+
         <br>
+
         ${escapeHtml(
           order.fullName
         )}
+
       </div>
 
+
       <div>
-        <strong>Contact</strong>
+
+        <strong>
+          Contact
+        </strong>
+
         <br>
+
         ${escapeHtml(
           order.contact
         )}
+
       </div>
 
+
       <div>
-        <strong>Program</strong>
+
+        <strong>
+          Email
+        </strong>
+
         <br>
+
+        ${escapeHtml(
+          order.email ||
+          "—"
+        )}
+
+      </div>
+
+
+      <div>
+
+        <strong>
+          Program
+        </strong>
+
+        <br>
+
         ${escapeHtml(
           order.program
         )}
+
       </div>
 
+
       <div>
-        <strong>Institution</strong>
+
+        <strong>
+          Institution
+        </strong>
+
         <br>
+
         ${escapeHtml(
           order.institution
         )}
+
       </div>
 
+
       <div>
-        <strong>Year Level</strong>
+
+        <strong>
+          Year Level
+        </strong>
+
         <br>
+
         ${escapeHtml(
           order.yearLevel
         )}
+
       </div>
 
+
       <div>
-        <strong>Section</strong>
+
+        <strong>
+          Section
+        </strong>
+
         <br>
+
         ${escapeHtml(
           order.section
         )}
+
       </div>
 
     </div>
+
+
+    ${membershipSection}
+
+
+    <!-- ITEMS -->
+
+    <h3 style="
+      margin-top:30px;
+      margin-bottom:12px;
+    ">
+      Order Items
+    </h3>
 
 
     <table class="receipt-table">
@@ -688,35 +1388,133 @@ function renderReceipt(order) {
       <thead>
 
         <tr>
-          <th>Item</th>
-          <th>Qty</th>
-          <th>Unit Price</th>
-          <th>Amount</th>
+
+          <th>
+            Item
+          </th>
+
+          <th>
+            Qty
+          </th>
+
+          <th>
+            Unit Price
+          </th>
+
+          <th>
+            Amount
+          </th>
+
         </tr>
 
       </thead>
 
+
       <tbody>
+
         ${itemRows}
+
       </tbody>
 
     </table>
 
 
-    <div class="receipt-total">
-      TOTAL:
-      ${peso(order.totalAmount)}
+    <!-- FINANCIAL SUMMARY -->
+
+    <div
+      id="receiptFinancialSummary"
+      style="
+        margin-top:25px;
+        margin-left:auto;
+        max-width:420px;
+      "
+    >
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        padding:8px 0;
+      ">
+
+        <span>
+          Regular Total
+        </span>
+
+        <strong>
+          ${peso(
+            regularTotal
+          )}
+        </strong>
+
+      </div>
+
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        padding:8px 0;
+        color:#6d6875;
+      ">
+
+        <span>
+          ${
+            isMember
+              ? "Member Discount"
+              : "Discount"
+          }
+        </span>
+
+        <strong>
+          ${
+            discountAmount > 0
+              ? `-${peso(
+                  discountAmount
+                )}`
+              : peso(0)
+          }
+        </strong>
+
+      </div>
+
+
+      <div
+        class="receipt-total"
+        style="
+          margin-top:8px;
+        "
+      >
+
+        TOTAL:
+
+        ${peso(
+          totalAmount
+        )}
+
+      </div>
+
     </div>
 
 
-    <div style="margin-top:25px;">
+    <!-- PAYMENT INFORMATION -->
+
+    <div style="
+      margin-top:30px;
+      padding-top:20px;
+      border-top:1px solid #e5e1ea;
+    ">
+
+      <h3>
+        Payment Information
+      </h3>
+
 
       <strong>
         Payment Method:
       </strong>
 
       ${escapeHtml(
-        order.paymentMethod
+        order.paymentMethod ||
+        "—"
       )}
 
       <br>
@@ -725,8 +1523,9 @@ function renderReceipt(order) {
       ${
         order.paymentReference
           ? `
+
             <strong>
-              Reference:
+              Payment Reference:
             </strong>
 
             ${escapeHtml(
@@ -734,6 +1533,7 @@ function renderReceipt(order) {
             )}
 
             <br>
+
           `
           : ""
       }
@@ -744,11 +1544,13 @@ function renderReceipt(order) {
       </strong>
 
       <span class="status-badge">
+
         ${escapeHtml(
           order.paymentStatus ||
           order.status ||
           "Pending"
         )}
+
       </span>
 
       <br><br>
@@ -766,19 +1568,26 @@ function renderReceipt(order) {
     </div>
 
 
-    ${renderStatusTimeline(order)}
+    <!-- ORDER TRACKING -->
+
+    ${renderStatusTimeline(
+      order
+    )}
 
 
-    <p
-      style="
-        margin-top:30px;
-        text-align:center;
-        color:#6d6875;
-      "
-    >
+    <p style="
+      margin-top:30px;
+      text-align:center;
+      color:#6d6875;
+    ">
+
       You're locked in. 🫡
+
       <br>
-      Thank you for supporting Juris Nexum!
+
+      Thank you for supporting
+      Juris Nexum!
+
     </p>
 
   `;
@@ -790,18 +1599,25 @@ function renderReceipt(order) {
    SECURITY / HTML ESCAPING
    ========================================================= */
 
-function escapeHtml(value) {
+function escapeHtml(
+  value
+) {
 
   return String(
     value ?? ""
   ).replace(
     /[&<>"']/g,
     c => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
+      "&":
+        "&amp;",
+      "<":
+        "&lt;",
+      ">":
+        "&gt;",
+      '"':
+        "&quot;",
+      "'":
+        "&#039;"
     }[c])
   );
 
@@ -812,91 +1628,313 @@ function escapeHtml(value) {
    START
    ========================================================= */
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadOrder();
-});
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    await loadOrder();
+
+  }
+);
+
 
 async function handleRefreshStatus() {
-  const button = document.getElementById("refreshStatusButton");
 
-  if (!button) return;
-
-  button.disabled = true;
-  button.textContent = "Refreshing...";
-
-  try {
-    await refreshOrder();
-  } finally {
-    button.disabled = false;
-    button.textContent = "Refresh Status";
-  }
-}
-
-document.addEventListener("click", function (event) {
-  if (event.target && event.target.id === "refreshStatusButton") {
-    handleRefreshStatus();
-  }
-});
+  const button =
+    document.getElementById(
+      "refreshStatusButton"
+    );
 
 
-async function downloadReceiptPDF() {
-  const receipt = document.getElementById("receipt");
-  const button = document.getElementById("downloadReceiptButton");
-
-  if (!receipt || !window.html2pdf) {
-    alert("Unable to create the PDF. Please try again.");
+  if (!button) {
     return;
   }
 
+
+  button.disabled =
+    true;
+
+  button.textContent =
+    "Refreshing...";
+
+
+  try {
+
+    await refreshOrder();
+
+  } finally {
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      "Refresh Status";
+
+  }
+
+}
+
+
+document.addEventListener(
+  "click",
+  function(event) {
+
+    if (
+      event.target &&
+      event.target.id ===
+        "refreshStatusButton"
+    ) {
+
+      handleRefreshStatus();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   DOWNLOAD RECEIPT PDF
+   ========================================================= */
+
+async function downloadReceiptPDF() {
+
+  const receipt =
+    document.getElementById(
+      "receipt"
+    );
+
+  const button =
+    document.getElementById(
+      "downloadReceiptButton"
+    );
+
+  if (
+    !receipt ||
+    !window.html2pdf
+  ) {
+
+    alert(
+      "Unable to create the PDF. Please try again."
+    );
+
+    return;
+
+  }
+
   const orderNumber =
-    new URLSearchParams(window.location.search).get("orderNo") ||
+    new URLSearchParams(
+      window.location.search
+    ).get(
+      "orderNo"
+    ) ||
     "JNX-Receipt";
 
   if (button) {
-    button.disabled = true;
-    button.textContent = "Creating PDF...";
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Creating PDF...";
+
   }
 
+  const hiddenElements = [];
+
   try {
+
+    /*
+     * The downloadable receipt must end at the
+     * financial summary / final price.
+     *
+     * Temporarily hide everything after the
+     * financial summary while html2pdf captures
+     * the REAL receipt element.
+     */
+
+    const financialSummary =
+      document.getElementById(
+        "receiptFinancialSummary"
+      );
+
+    if (!financialSummary) {
+
+      throw new Error(
+        "Receipt financial summary was not found."
+      );
+
+    }
+
+    /*
+     * Hide every element in receiptContent that
+     * comes after the financial summary.
+     *
+     * This removes Payment Information and anything
+     * else after the final price from the PDF.
+     */
+    let current =
+      financialSummary.nextElementSibling;
+
+    while (current) {
+
+      hiddenElements.push({
+        element: current,
+        display: current.style.display
+      });
+
+      current.style.display =
+        "none";
+
+      current =
+        current.nextElementSibling;
+
+    }
+
+    /*
+     * Also hide any tracking section that may
+     * appear elsewhere inside the receipt.
+     */
+    receipt
+      .querySelectorAll(
+        ".order-tracking-box, [data-pdf-exclude='true']"
+      )
+      .forEach(
+        element => {
+
+          if (
+            !hiddenElements.some(
+              item =>
+                item.element ===
+                element
+            )
+          ) {
+
+            hiddenElements.push({
+              element,
+              display:
+                element.style.display
+            });
+
+            element.style.display =
+              "none";
+
+          }
+
+        }
+      );
+
     const options = {
+
       margin: 10,
-      filename: `${orderNumber}-Receipt.pdf`,
+
+      filename:
+        `${orderNumber}-Receipt.pdf`,
+
       image: {
-        type: "jpeg",
-        quality: 0.98
+
+        type:
+          "jpeg",
+
+        quality:
+          0.98
+
       },
+
       html2canvas: {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff"
+
+        scale:
+          2,
+
+        useCORS:
+          true,
+
+        backgroundColor:
+          "#ffffff"
+
       },
+
       jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "portrait"
+
+        unit:
+          "mm",
+
+        format:
+          "a4",
+
+        orientation:
+          "portrait"
+
       }
+
     };
 
+    /*
+     * Capture the actual visible receipt.
+     */
     await html2pdf()
       .set(options)
       .from(receipt)
       .save();
 
   } catch (error) {
-    console.error("PDF generation failed:", error);
-    alert("Unable to download the receipt. Please try again.");
+
+    console.error(
+      "PDF generation failed:",
+      error
+    );
+
+    alert(
+      "Unable to download the receipt. Please try again."
+    );
+
   } finally {
+
+    /*
+     * Restore everything exactly as it was
+     * after PDF generation.
+     */
+    hiddenElements.forEach(
+      item => {
+
+        item.element.style.display =
+          item.display;
+
+      }
+    );
+
     if (button) {
-      button.disabled = false;
-      button.textContent = "Download Receipt as PDF";
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "Download Receipt as PDF";
+
     }
+
   }
+
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const button = document.getElementById("downloadReceiptButton");
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
 
-  if (button) {
-    button.addEventListener("click", downloadReceiptPDF);
+    const button =
+      document.getElementById(
+        "downloadReceiptButton"
+      );
+
+
+    if (button) {
+
+      button.addEventListener(
+        "click",
+        downloadReceiptPDF
+      );
+
+    }
+
   }
-});
+);
