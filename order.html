@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Receipt | Juris Nexum</title>
+  <link rel="icon" href="assets/jnx-logo.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header no-print">
+  <a class="brand brand-link" href="index.html">
+    <img src="assets/jnx-logo.png" alt="Juris Nexum logo">
+    <div><h1>Juris Nexum</h1><p>Merchandise Shop</p></div>
+  </a>
+</header>
+
+<main class="receipt-page">
+  <div class="receipt-actions no-print">
+    <a class="secondary-button" href="index.html">Back to Shop</a>
+    <button class="primary-button" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <section id="receipt" class="receipt card">
+    <div class="receipt-header">
+      <img src="assets/jnx-logo.png" alt="Juris Nexum logo">
+      <div>
+        <h1>JURIS NEXUM</h1>
+        <p>MERCHANDISE SHOP</p>
+        <h2>ORDER RECEIPT</h2>
+      </div>
+    </div>
+    <div id="receiptContent"></div>
+  </section>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/order.js"></script>
+</body>
+</html>

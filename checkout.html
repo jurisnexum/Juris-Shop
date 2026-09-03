@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | Juris Nexum Merchandise</title>
+  <link rel="icon" href="assets/jnx-logo.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand brand-link" href="index.html">
+    <img src="assets/jnx-logo.png" alt="Juris Nexum logo">
+    <div>
+      <h1>Juris Nexum</h1>
+      <p>Merchandise Shop</p>
+    </div>
+  </a>
+  <a class="text-link" href="index.html">← Continue Shopping</a>
+</header>
+
+<main class="checkout-page">
+  <div class="checkout-layout">
+    <section class="card">
+      <p class="eyebrow">CHECKOUT</p>
+      <h2>Buyer Information</h2>
+      <p class="muted">No account is required. Please provide accurate information for your order.</p>
+
+      <form id="checkoutForm">
+        <div class="form-grid">
+          <label>
+            Full Name *
+            <input id="fullName" required autocomplete="name">
+          </label>
+          <label>
+            Contact Number *
+            <input id="contact" required autocomplete="tel" inputmode="tel">
+          </label>
+          <label>
+            Email Address
+            <input id="email" type="email" autocomplete="email">
+          </label>
+          <label>
+            Program *
+            <input id="program" required placeholder="e.g. BS Legal Management">
+          </label>
+          <label>
+            Institution *
+            <input id="institution" required placeholder="e.g. Mabalacat City College">
+          </label>
+          <label>
+            Year Level *
+            <select id="yearLevel" required>
+              <option value="">Select year level</option>
+              <option>1st Year</option>
+              <option>2nd Year</option>
+              <option>3rd Year</option>
+              <option>4th Year</option>
+              <option>Graduate</option>
+              <option>Not Applicable</option>
+            </select>
+          </label>
+          <label>
+            Section *
+            <input id="section" required placeholder="e.g. A">
+          </label>
+          <label>
+            Mode of Payment *
+            <select id="paymentMethod" required>
+              <option value="">Select payment method</option>
+              <option value="InstaPay">InstaPay</option>
+              <option value="Cash">Cash</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="paymentPanel" class="payment-panel hidden">
+          <h3>InstaPay Payment</h3>
+          <p>Scan the QR code below. The amount shown is automatically computed from your cart.</p>
+          <div class="qr-wrap">
+            <img src="assets/payment-qr.jpg" alt="InstaPay payment QR code">
+          </div>
+          <div class="amount-box">
+            <span>Amount to Pay</span>
+            <strong id="paymentTotal">₱0.00</strong>
+          </div>
+          <p class="warning">Do not type a different amount. Please pay the exact total shown above.</p>
+
+          <label>
+            InstaPay Reference Number *
+            <input id="paymentReference" placeholder="Enter your transaction reference">
+          </label>
+          <label>
+            Proof of Payment *
+            <input id="proof" type="file" accept="image/*,.pdf">
+            <small>For the first version, the receipt file is selected here. The Google Drive upload connection will be added in the backend setup.</small>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button class="primary-button" type="submit">Place Order</button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="card order-summary">
+      <p class="eyebrow">YOUR ORDER</p>
+      <h2>Order Summary</h2>
+      <div id="cartItems"></div>
+      <div class="summary-total">
+        <span>Total</span>
+        <strong id="cartTotal">₱0.00</strong>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/checkout.js"></script>
+</body>
+</html>

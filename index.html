@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juris Nexum Merchandise Shop</title>
+  <link rel="icon" href="assets/jnx-logo.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="brand">
+    <img src="assets/jnx-logo.png" alt="Juris Nexum logo">
+    <div>
+      <h1>Juris Nexum</h1>
+      <p>Merchandise Shop</p>
+    </div>
+  </div>
+  <a class="cart-button" href="checkout.html">Cart <span id="cartCount">0</span></a>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <p class="eyebrow">OFFICIAL MERCHANDISE</p>
+      <h2>Wear the spirit of Juris Nexum.</h2>
+      <p>Browse our merchandise and place an order without creating an account.</p>
+    </div>
+  </section>
+
+  
+  <section class="shop-section">
+    <div class="card">
+      <p class="eyebrow">ORDER TRACKING</p>
+      <h2>Already placed an order?</h2>
+      <p class="muted">Enter your order number to view your receipt and current status.</p>
+      <form id="trackForm" style="display:flex;gap:10px;max-width:600px;">
+        <input id="trackOrderNo" placeholder="e.g. JNX-2026-00001" required>
+        <button class="primary-button" type="submit">Track</button>
+      </form>
+    </div>
+  </section>
+
+<section class="shop-section">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">SHOP</p>
+        <h2>Available Merchandise</h2>
+      </div>
+      <select id="categoryFilter" aria-label="Filter products">
+        <option value="all">All Categories</option>
+      </select>
+    </div>
+    <div id="productGrid" class="product-grid"></div>
+  </section>
+</main>
+
+<footer>
+  <p>© 2026 Juris Nexum. Merchandise Shop.</p>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/shop.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {\n  const f=document.getElementById("trackForm");\n  f.addEventListener("submit", e => { e.preventDefault(); const n=document.getElementById("trackOrderNo").value.trim(); if(n) location.href="order.html?orderNo="+encodeURIComponent(n); });\n});\n</script>
+</body>
+</html>
