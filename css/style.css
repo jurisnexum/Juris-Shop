@@ -478,3 +478,21 @@ footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px
   }
 
 }
+
+
+/* JNX ORDER TRACKING - FORCE REFRESH BUTTON CLICKABLE */
+#refreshStatusButton {
+  position: relative !important;
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+#refreshStatusButton:disabled {
+  cursor: wait !important;
+  pointer-events: auto !important;
+}
+
+.print-overlay {
+  pointer-events: none !important;
+}

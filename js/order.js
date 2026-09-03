@@ -343,7 +343,7 @@ function renderStatusTimeline(order) {
         <button
           type="button"
           class="secondary-button"
-          id="refreshStatusButton"
+          id="refreshStatusButton" onclick="handleRefreshStatus()"
         >
           Refresh Status
         </button>
