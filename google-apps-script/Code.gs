@@ -197,19 +197,19 @@ function createOrder_(data) {
     total = roundMoney_(total);
 
     const paymentMethod = String(data.paymentMethod || "").trim();
-    if (!["InstaPay", "Cash"].includes(paymentMethod)) {
+    if (!["GCash", "Cash"].includes(paymentMethod)) {
       throw new Error("Invalid payment method.");
     }
 
-    if (paymentMethod === "InstaPay" && !String(data.paymentReference || "").trim()) {
-      throw new Error("InstaPay reference number is required.");
+    if (paymentMethod === "GCash" && !String(data.paymentReference || "").trim()) {
+      throw new Error("GCash reference number is required.");
     }
 
     const proofUrl = saveProof_(data.proof);
 
     const orderNo = nextOrderNumber_();
     const timestamp = now_();
-    const paymentStatus = paymentMethod === "InstaPay"
+    const paymentStatus = paymentMethod === "GCash"
       ? "Pending Verification"
       : "Pending";
 
