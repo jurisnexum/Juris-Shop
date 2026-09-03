@@ -25,6 +25,101 @@
      ACTUAL ORDER RECEIPT
      ===================================================== -->
 
+<!-- =====================================================
+     PHOTObooth / RECEIPT PRINTING ANIMATION
+     ===================================================== -->
+
+<div id="printOverlay" class="print-overlay">
+
+  <div class="printer-scene">
+
+    <div class="printer">
+
+      <div class="printer-top">
+        <span>JNX</span>
+        <span>MERCH</span>
+      </div>
+
+      <div class="printer-screen">
+        <span class="printing-dot"></span>
+        <span id="printingText">Printing your receipt...</span>
+      </div>
+
+      <div class="printer-slot"></div>
+
+      <div id="printedPaper" class="printed-paper">
+
+        <div class="paper-content">
+
+          <div class="receipt-logo">
+            JURIS NEXUM
+          </div>
+
+          <div class="receipt-star">
+            ✦ JNX MERCH ✦
+          </div>
+
+          <div class="receipt-line"></div>
+
+          <div class="receipt-title">
+            YOU'RE LOCKED IN 🫡
+          </div>
+
+          <div class="receipt-subtitle">
+            Your JNX haul is secured.
+          </div>
+
+          <div class="receipt-order">
+            <span>ORDER NUMBER</span>
+            <strong id="printOrderNumber"></strong>
+          </div>
+
+          <div class="receipt-line"></div>
+
+          <div id="printReceiptItems"></div>
+
+          <div class="receipt-line"></div>
+
+          <div class="receipt-total">
+            <span>TOTAL</span>
+            <strong id="printTotal">₱0.00</strong>
+          </div>
+
+          <div class="receipt-payment">
+            <span>PAYMENT</span>
+            <strong>GCash</strong>
+          </div>
+
+          <div class="receipt-status">
+            🟡 Pending Verification
+          </div>
+
+          <div class="receipt-line"></div>
+
+          <div class="receipt-message">
+            Keep this receipt!<br>
+            Your order # is your bestie now. 🫶
+          </div>
+
+          <div class="receipt-footer">
+            JURIS NEXUM
+            <small>Rise. Lead. Inspire.</small>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div id="printingStatus" class="printing-status">
+      Printing your JNX receipt...
+    </div>
+
+  </div>
+
+</div>
+
 <main class="receipt-page">
 
   <div class="receipt-actions no-print">
