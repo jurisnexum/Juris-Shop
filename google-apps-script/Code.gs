@@ -21,6 +21,7 @@
 const CONFIG = {
   TIMEZONE: "Asia/Manila",
   PRODUCTS_SHEET: "PRODUCTS",
+  VARIANTS_SHEET: "PRODUCT_VARIANTS",
   MEMBERS_SHEET: "MEMBERS",
   ORDERS_SHEET: "ORDERS",
   ITEMS_SHEET: "ORDER_ITEMS",
@@ -130,10 +131,20 @@ function setupShop() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
 
   const products = getOrCreateSheet_(ss, CONFIG.PRODUCTS_SHEET);
+  const variants = getOrCreateSheet_(ss, CONFIG.VARIANTS_SHEET);
   const members = getOrCreateSheet_(ss, CONFIG.MEMBERS_SHEET);
   const orders = getOrCreateSheet_(ss, CONFIG.ORDERS_SHEET);
   const items = getOrCreateSheet_(ss, CONFIG.ITEMS_SHEET);
   const settings = getOrCreateSheet_(ss, CONFIG.SETTINGS_SHEET);
+
+  setHeaders_(variants, [
+    "Product ID",
+    "Variant",
+    "Price",
+    "Member Price",
+    "Stock",
+    "Status"
+  ]);
 
   setHeaders_(products, [
     "Product ID",
@@ -200,6 +211,15 @@ function setupShop() {
    * Only add sample products if PRODUCTS is actually empty.
    * Existing products are never overwritten.
    */
+  if (variants.getLastRow() <= 1) {
+    variants.getRange(2, 1, 4, 6).setValues([
+      ["JNX002", "Small", 130, 110, 5, "Available"],
+      ["JNX002", "Medium", 140, 120, 5, "Available"],
+      ["JNX002", "Large", 150, 130, 5, "Available"],
+      ["JNX002", "XL", 160, 140, 5, "Available"]
+    ]);
+  }
+
   if (products.getLastRow() <= 1) {
     products.getRange(2, 1, 2, 10).setValues([
       [
@@ -222,7 +242,7 @@ function setupShop() {
         180,
         20,
         "",
-        "Free Size",
+        "Small,Medium,Large,XL",
         "Available",
         160
       ]
@@ -361,6 +381,12 @@ function createOrder_(data) {
 
     const products = readProductsMap_(productSheet);
 
+    const variantSheet =
+      ss.getSheetByName(CONFIG.VARIANTS_SHEET);
+
+    const variants =
+      readProductVariantsMap_(variantSheet);
+
     const normalizedItems = [];
 
     let regularTotal = 0;
@@ -397,51 +423,94 @@ function createOrder_(data) {
         product.status.toLowerCase() !== "available"
       ) {
         throw new Error(
-          `${product.name} is currently unavailable.`
+          product.name + " is currently unavailable."
         );
       }
 
-      if (product.stock < quantity) {
-        throw new Error(
-          `Not enough stock for ${product.name}. Available: ${product.stock}.`
-        );
-      }
 
       if (
         product.variants.length &&
         !product.variants.includes(variant)
       ) {
         throw new Error(
-          `Invalid variant for ${product.name}.`
+          "Invalid variant for " + product.name + "."
         );
       }
 
       /*
-       * Regular price always comes from Google Sheets.
-       */
-      const regularUnitPrice = product.price;
-
-      /*
-       * Member price comes from column J.
+       * Price and stock come from PRODUCT_VARIANTS
+       * when the product has a variant-specific entry.
        *
-       * If no member price is entered, fall back to
-       * the regular price so the product remains usable.
+       * This allows sizes such as Small, Medium, Large,
+       * and XL to have different prices.
        */
-      const memberUnitPrice =
-        product.memberPrice > 0
-          ? product.memberPrice
-          : regularUnitPrice;
+      const variantKey =
+        productId + "__" + variant.toLowerCase();
+
+      const variantData =
+        variants[variantKey];
+
+      let regularUnitPrice;
+      let memberUnitPrice;
+      let availableStock;
+
+      if (variantData) {
+        regularUnitPrice =
+          variantData.price;
+
+        memberUnitPrice =
+          variantData.memberPrice > 0
+            ? variantData.memberPrice
+            : regularUnitPrice;
+
+        availableStock =
+          variantData.stock;
+
+        if (
+          variantData.status.toLowerCase() !==
+          "available"
+        ) {
+          throw new Error(
+            product.name + " (" + variant + ") is currently unavailable."
+          );
+        }
+      } else {
+        /*
+         * Backward compatibility:
+         * products without variant-specific pricing
+         * continue using PRODUCTS columns E and J.
+         */
+        regularUnitPrice =
+          product.price;
+
+        memberUnitPrice =
+          product.memberPrice > 0
+            ? product.memberPrice
+            : regularUnitPrice;
+
+        availableStock =
+          product.stock;
+      }
+
+      if (
+        regularUnitPrice < 0 ||
+        memberUnitPrice < 0
+      ) {
+        throw new Error(
+          "Invalid price for " + product.name + " (" + variant + ")."
+        );
+      }
+
+      if (availableStock < quantity) {
+        throw new Error(
+          "Not enough stock for " + product.name + " (" + variant + "). Available: " + availableStock + "."
+        );
+      }
 
       const unitPrice =
         isMember
           ? memberUnitPrice
           : regularUnitPrice;
-
-      if (unitPrice < 0) {
-        throw new Error(
-          `Invalid price for ${product.name}.`
-        );
-      }
 
       const regularSubtotal =
         regularUnitPrice * quantity;
@@ -452,15 +521,18 @@ function createOrder_(data) {
       regularTotal += regularSubtotal;
       total += subtotal;
 
-      normalizedItems.push({
-        productId,
-        name: product.name,
-        variant,
-        quantity,
-        unitPrice,
-        subtotal,
-        row: product.row
-      });
+        normalizedItems.push({
+          productId,
+          name: product.name,
+          variant,
+          quantity,
+          unitPrice,
+          subtotal,
+          row: product.row,
+          variantRow: variantData
+            ? variantData.row
+            : null
+        });
     }
 
     regularTotal = roundMoney_(regularTotal);
@@ -547,25 +619,52 @@ function createOrder_(data) {
         .setValues(itemRows);
     }
 
-    /*
-     * Deduct stock only after all validation succeeds.
-     */
-    for (const item of normalizedItems) {
-      const newStock =
-        products[item.productId].stock -
-        item.quantity;
+      /*
+       * Deduct stock only after all validation succeeds.
+       *
+       * Variant products deduct stock from PRODUCT_VARIANTS.
+       * Products without variant-specific rows use PRODUCTS.
+       */
+      for (const item of normalizedItems) {
+        if (item.variantRow) {
+          const variantValues =
+            variantSheet
+              .getRange(item.variantRow, 5, 1, 2)
+              .getValues()[0];
 
-      productSheet
-        .getRange(item.row, 6)
-        .setValue(newStock);
+          const currentStock =
+            Number(variantValues[0]) || 0;
 
-      if (newStock <= 0) {
-        productSheet
-          .getRange(item.row, 9)
-          .setValue("Out of Stock");
+          const newStock =
+            currentStock - item.quantity;
+
+          variantSheet
+            .getRange(item.variantRow, 5)
+            .setValue(newStock);
+
+          if (newStock <= 0) {
+            variantSheet
+              .getRange(item.variantRow, 6)
+              .setValue("Out of Stock");
+          }
+        } else {
+          const newStock =
+            products[item.productId].stock -
+            item.quantity;
+
+          productSheet
+            .getRange(item.row, 6)
+            .setValue(newStock);
+
+          if (newStock <= 0) {
+            productSheet
+              .getRange(item.row, 9)
+              .setValue("Out of Stock");
+          }
+        }
       }
-    }
 
+      
     return {
       ok: true,
       orderNumber: orderNo,
@@ -595,12 +694,18 @@ function createOrder_(data) {
 }
 
 function getProducts_() {
+  const ss =
+    SpreadsheetApp.getActiveSpreadsheet();
+
   const sheet =
-    SpreadsheetApp
-      .getActiveSpreadsheet()
-      .getSheetByName(
-        CONFIG.PRODUCTS_SHEET
-      );
+    ss.getSheetByName(
+      CONFIG.PRODUCTS_SHEET
+    );
+
+  const variantSheet =
+    ss.getSheetByName(
+      CONFIG.VARIANTS_SHEET
+    );
 
   if (
     !sheet ||
@@ -612,33 +717,68 @@ function getProducts_() {
   const values =
     sheet.getDataRange().getValues();
 
+  const variantMap =
+    readProductVariantsMap_(variantSheet);
+
   return values
     .slice(1)
     .filter(r => r[0])
-    .map(r => ({
-      id: String(r[0]),
-      name: String(r[1]),
-      category: String(r[2]),
-      description: String(r[3]),
-      price: Number(r[4]) || 0,
-      stock: Number(r[5]) || 0,
-      image: String(r[6] || ""),
-      variants: String(r[7] || "")
-        .split(",")
-        .map(x => x.trim())
-        .filter(Boolean),
-      status: String(r[8] || "Available"),
+    .map(r => {
+      const productId =
+        String(r[0]).trim();
 
-      /*
-       * NEW:
-       * Member Price is column J.
-       */
-      memberPrice: Number(r[9]) || 0
-    }))
+      const variantDetails =
+        Object.values(variantMap)
+          .filter(v => v.productId === productId)
+          .map(v => ({
+            variant: v.variant,
+            price: v.price,
+            memberPrice: v.memberPrice,
+            stock: v.stock,
+            status: v.status
+          }));
+
+      const variants =
+        variantDetails.length
+          ? variantDetails
+              .filter(
+                v =>
+                  v.status.toLowerCase() ===
+                    "available" &&
+                  v.stock > 0
+              )
+              .map(v => v.variant)
+          : String(r[7] || "")
+              .split(",")
+              .map(x => x.trim())
+              .filter(Boolean);
+
+      return {
+        id: productId,
+        name: String(r[1]),
+        category: String(r[2]),
+        description: String(r[3]),
+        price: Number(r[4]) || 0,
+        stock: Number(r[5]) || 0,
+        image: String(r[6] || ""),
+        variants,
+        variantDetails,
+        status: String(r[8] || "Available"),
+        memberPrice: Number(r[9]) || 0
+      };
+    })
     .filter(
       p =>
         p.status.toLowerCase() === "available" &&
-        p.stock > 0
+        (
+          p.variantDetails.some(
+            v =>
+              v.status.toLowerCase() ===
+                "available" &&
+              v.stock > 0
+          ) ||
+          p.stock > 0
+        )
     );
 }
 
@@ -793,6 +933,46 @@ function readProductsMap_(sheet) {
   return map;
 }
 
+function readProductVariantsMap_(sheet) {
+  const map = {};
+
+  if (!sheet || sheet.getLastRow() < 2) {
+    return map;
+  }
+
+  const values =
+    sheet.getDataRange().getValues();
+
+  for (let i = 1; i < values.length; i++) {
+    const r = values[i];
+
+    const productId =
+      String(r[0] || "").trim();
+
+    const variant =
+      String(r[1] || "").trim();
+
+    if (!productId || !variant) {
+      continue;
+    }
+
+    const key =
+      productId + "__" + variant.toLowerCase();
+
+    map[key] = {
+      row: i + 1,
+      productId,
+      variant,
+      price: Number(r[2]) || 0,
+      memberPrice: Number(r[3]) || 0,
+      stock: Number(r[4]) || 0,
+      status: String(r[5] || "Available")
+    };
+  }
+
+  return map;
+}
+
 /**
  * Find a member by Member ID.
  */
@@ -941,7 +1121,7 @@ function validateBuyer_(data) {
         ).trim()
       ) {
         throw new Error(
-          `${label} is required.`
+          label + " is required."
         );
       }
     }
@@ -1118,7 +1298,7 @@ function nextOrderNumber_() {
       "yyyy"
     );
 
-  return `JNX-${year}-${String(current).padStart(5, "0")}`;
+  return "JNX-" + year + "-" + String(current).padStart(5, "0");
 }
 
 function getSetting_(key) {
