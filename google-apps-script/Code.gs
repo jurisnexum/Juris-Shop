@@ -430,18 +430,22 @@ function createOrder_(data) {
 
       /*
        * Validate variants against PRODUCT_VARIANTS when
-       * variant-specific entries exist. Comparison is
-       * case-insensitive and ignores surrounding spaces.
+       * variant-specific entries exist.
+       * Comparison ignores capitalization and spaces.
        */
       const normalizedVariant =
-        String(variant || "").trim().toLowerCase();
+        String(variant || "")
+          .trim()
+          .toLowerCase();
 
       const productVariantEntries =
         Object.values(variants).filter(
           v =>
             v.productId === productId &&
-            String(v.variant || "").trim()
-              .toLowerCase() === normalizedVariant
+            String(v.variant || "")
+              .trim()
+              .toLowerCase() ===
+              normalizedVariant
         );
 
       if (
@@ -449,12 +453,16 @@ function createOrder_(data) {
         product.variants.length &&
         !product.variants.some(
           v =>
-            String(v || "").trim().toLowerCase() ===
+            String(v || "")
+              .trim()
+              .toLowerCase() ===
             normalizedVariant
         )
       ) {
         throw new Error(
-          "Invalid variant for " + product.name + "."
+          "Invalid variant for " +
+          product.name +
+          "."
         );
       }
 
@@ -467,7 +475,9 @@ function createOrder_(data) {
        */
       const variantKey =
         productId + "__" +
-        String(variant || "").trim().toLowerCase();
+        String(variant || "")
+          .trim()
+          .toLowerCase();
 
       const variantData =
         variants[variantKey];
