@@ -197,7 +197,7 @@ function createOrder_(data) {
     total = roundMoney_(total);
 
     const paymentMethod = String(data.paymentMethod || "").trim();
-    if (!["GCash", "Cash"].includes(paymentMethod)) {
+    if (paymentMethod !== "GCash") {
       throw new Error("Invalid payment method.");
     }
 
@@ -209,9 +209,7 @@ function createOrder_(data) {
 
     const orderNo = nextOrderNumber_();
     const timestamp = now_();
-    const paymentStatus = paymentMethod === "GCash"
-      ? "Pending Verification"
-      : "Pending";
+    const paymentStatus = "Pending Verification";
 
     ordersSheet.appendRow([
       orderNo,
