@@ -78,7 +78,7 @@ async function loadOrder() {
     order.orderNumber === orderNo
   ) {
 
-    setTimeout(() => showPrintingAnimation(order), 100);
+    setTimeout(() => showPrintingAnimation(order), 150);
 
   } else {
 
