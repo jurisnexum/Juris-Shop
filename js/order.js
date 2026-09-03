@@ -18,14 +18,12 @@ async function loadOrder() {
   const orderNo =
     params.get("orderNo");
 
-  const local =
-    JSON.parse(
-      localStorage.getItem(ORDER_KEY) || "null"
-    );
+  let order = null;
 
-  let order = local;
-
-
+  /*
+   * Google Sheets is the source of truth.
+   * Always fetch the order using the order number.
+   */
   if (
     API_URL &&
     !API_URL.includes("PASTE_YOUR") &&
@@ -244,6 +242,225 @@ function showPrintingAnimation(order) {
 
   }, 4600);
 
+}
+
+
+/* =========================================================
+   ORDER STATUS HELPERS
+   ========================================================= */
+
+function normalizeStatus(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+
+function getStatusStage(order) {
+  const paymentStatus = normalizeStatus(order.paymentStatus);
+  const orderStatus = normalizeStatus(order.orderStatus);
+
+  if (
+    orderStatus.includes("completed") ||
+    orderStatus.includes("complete")
+  ) {
+    return 5;
+  }
+
+  if (
+    orderStatus.includes("ready") ||
+    orderStatus.includes("pickup") ||
+    orderStatus.includes("pick up")
+  ) {
+    return 4;
+  }
+
+  if (
+    orderStatus.includes("processing") ||
+    orderStatus.includes("preparing")
+  ) {
+    return 3;
+  }
+
+  if (
+    paymentStatus.includes("verified") ||
+    paymentStatus.includes("paid") ||
+    paymentStatus.includes("confirmed") ||
+    paymentStatus.includes("approved")
+  ) {
+    return 2;
+  }
+
+  return 1;
+}
+
+
+function renderStatusTimeline(order) {
+  const currentStage = getStatusStage(order);
+
+  const stages = [
+    "Order Placed",
+    "Payment Verified",
+    "Processing",
+    "Ready for Pickup",
+    "Completed"
+  ];
+
+  return `
+    <div class="order-tracking-box" style="
+      margin-top:30px;
+      padding:22px;
+      border:1px solid #e5e1ea;
+      border-radius:16px;
+      background:#faf9fc;
+    ">
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:15px;
+        margin-bottom:20px;
+        flex-wrap:wrap;
+      ">
+        <div>
+          <strong style="font-size:18px;">
+            Order Tracking
+          </strong>
+          <div style="
+            margin-top:4px;
+            color:#777;
+            font-size:13px;
+          ">
+            Current status:
+            <strong>
+              ${escapeHtml(order.orderStatus || "Pending")}
+            </strong>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="secondary-button"
+          id="refreshStatusButton"
+        >
+          Refresh Status
+        </button>
+      </div>
+
+      <div style="
+        display:flex;
+        flex-direction:column;
+        gap:14px;
+      ">
+        ${stages.map((stage, index) => {
+          const stageNumber = index + 1;
+          const completed = stageNumber <= currentStage;
+
+          return `
+            <div style="
+              display:flex;
+              align-items:center;
+              gap:12px;
+            ">
+              <div style="
+                width:30px;
+                height:30px;
+                min-width:30px;
+                border-radius:50%;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-weight:700;
+                background:${completed ? "#111" : "#e9e6ed"};
+                color:${completed ? "#fff" : "#777"};
+              ">
+                ${completed ? "✓" : stageNumber}
+              </div>
+
+              <div style="
+                font-weight:${completed ? "700" : "500"};
+                color:${completed ? "#111" : "#777"};
+              ">
+                ${stage}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   REFRESH ORDER
+   ========================================================= */
+
+async function refreshOrder() {
+  const button =
+    document.getElementById("refreshStatusButton");
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Refreshing...";
+  }
+
+  try {
+    const params =
+      new URLSearchParams(location.search);
+
+    const orderNo =
+      params.get("orderNo");
+
+    if (!orderNo) {
+      return;
+    }
+
+    const response =
+      await fetch(
+        `${API_URL}?action=order&orderNo=${encodeURIComponent(orderNo)}&t=${Date.now()}`,
+        {
+          cache: "no-store"
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (!data.ok || !data.order) {
+      throw new Error(
+        data.error || "Order not found."
+      );
+    }
+
+    localStorage.setItem(
+      ORDER_KEY,
+      JSON.stringify(data.order)
+    );
+
+    renderReceipt(data.order);
+
+  } catch (err) {
+
+    console.error(
+      "Could not refresh order:",
+      err
+    );
+
+    alert(
+      "Unable to refresh the order status right now. Please try again."
+    );
+
+  } finally {
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Refresh Status";
+    }
+
+  }
 }
 
 
@@ -475,6 +692,9 @@ function renderReceipt(order) {
     </div>
 
 
+    ${renderStatusTimeline(order)}
+
+
     <p
       style="
         margin-top:30px;
@@ -520,5 +740,17 @@ function escapeHtml(value) {
 
 document.addEventListener(
   "DOMContentLoaded",
-  loadOrder
+  async () => {
+    await loadOrder();
+
+    const refreshButton =
+      document.getElementById("refreshStatusButton");
+
+    if (refreshButton) {
+      refreshButton.addEventListener(
+        "click",
+        refreshOrder
+      );
+    }
+  }
 );
