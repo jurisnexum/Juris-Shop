@@ -376,6 +376,216 @@ function showPrintingAnimation(order) {
 
 
   /*
+   * PRINTER SOUND EFFECT
+   * Generated with Web Audio API — no audio file required.
+   */
+  let jnxPrinterAudioContext = null;
+  let jnxPrinterMasterGain = null;
+  let jnxPrinterMotor = null;
+  let jnxPrinterMotorGain = null;
+  let jnxPrinterPaperTimer = null;
+
+  function startJnxPrinterSound() {
+    try {
+      const AudioContext =
+        window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContext) return;
+
+      if (!jnxPrinterAudioContext) {
+        jnxPrinterAudioContext = new AudioContext();
+      }
+
+      const ctx = jnxPrinterAudioContext;
+
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
+
+      /*
+       * Master volume
+       */
+      jnxPrinterMasterGain = ctx.createGain();
+      jnxPrinterMasterGain.gain.setValueAtTime(
+        0.0001,
+        ctx.currentTime
+      );
+
+      jnxPrinterMasterGain.gain.exponentialRampToValueAtTime(
+        0.055,
+        ctx.currentTime + 0.08
+      );
+
+      jnxPrinterMasterGain.connect(ctx.destination);
+
+      /*
+       * Low mechanical printer motor
+       */
+      jnxPrinterMotor = ctx.createOscillator();
+      jnxPrinterMotorGain = ctx.createGain();
+
+      jnxPrinterMotor.type = "sawtooth";
+      jnxPrinterMotor.frequency.setValueAtTime(
+        72,
+        ctx.currentTime
+      );
+
+      jnxPrinterMotorGain.gain.setValueAtTime(
+        0.0001,
+        ctx.currentTime
+      );
+
+      jnxPrinterMotorGain.gain.exponentialRampToValueAtTime(
+        0.22,
+        ctx.currentTime + 0.12
+      );
+
+      jnxPrinterMotor.connect(jnxPrinterMotorGain);
+      jnxPrinterMotorGain.connect(jnxPrinterMasterGain);
+
+      jnxPrinterMotor.start();
+
+      /*
+       * Slight motor variation for a more mechanical sound
+       */
+      jnxPrinterMotor.frequency.linearRampToValueAtTime(
+        82,
+        ctx.currentTime + 0.7
+      );
+
+      jnxPrinterMotor.frequency.linearRampToValueAtTime(
+        68,
+        ctx.currentTime + 1.6
+      );
+
+      jnxPrinterMotor.frequency.linearRampToValueAtTime(
+        78,
+        ctx.currentTime + 2.7
+      );
+
+      jnxPrinterMotor.frequency.linearRampToValueAtTime(
+        64,
+        ctx.currentTime + 3.7
+      );
+
+      /*
+       * Paper-feed clicks / mechanical pulses
+       */
+      const paperPulse = () => {
+        if (!jnxPrinterAudioContext || !jnxPrinterMasterGain) {
+          return;
+        }
+
+        const now = jnxPrinterAudioContext.currentTime;
+
+        const osc =
+          jnxPrinterAudioContext.createOscillator();
+
+        const gain =
+          jnxPrinterAudioContext.createGain();
+
+        osc.type = "square";
+
+        osc.frequency.setValueAtTime(
+          105,
+          now
+        );
+
+        osc.frequency.exponentialRampToValueAtTime(
+          55,
+          now + 0.045
+        );
+
+        gain.gain.setValueAtTime(
+          0.0001,
+          now
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.12,
+          now + 0.008
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.0001,
+          now + 0.055
+        );
+
+        osc.connect(gain);
+        gain.connect(jnxPrinterMasterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.06);
+      };
+
+      paperPulse();
+
+      jnxPrinterPaperTimer =
+        setInterval(paperPulse, 145);
+
+    } catch (error) {
+      console.warn(
+        "JNX printer sound could not start:",
+        error
+      );
+    }
+  }
+
+
+  function stopJnxPrinterSound() {
+    try {
+      if (jnxPrinterPaperTimer) {
+        clearInterval(jnxPrinterPaperTimer);
+        jnxPrinterPaperTimer = null;
+      }
+
+      if (
+        jnxPrinterAudioContext &&
+        jnxPrinterMasterGain
+      ) {
+        const ctx = jnxPrinterAudioContext;
+        const now = ctx.currentTime;
+
+        jnxPrinterMasterGain.gain.cancelScheduledValues(
+          now
+        );
+
+        jnxPrinterMasterGain.gain.setValueAtTime(
+          Math.max(
+            jnxPrinterMasterGain.gain.value,
+            0.0001
+          ),
+          now
+        );
+
+        jnxPrinterMasterGain.gain.exponentialRampToValueAtTime(
+          0.0001,
+          now + 0.15
+        );
+      }
+
+      if (jnxPrinterMotor) {
+        setTimeout(() => {
+          try {
+            jnxPrinterMotor.stop();
+          } catch (_) {}
+
+          jnxPrinterMotor = null;
+          jnxPrinterMotorGain = null;
+          jnxPrinterMasterGain = null;
+        }, 180);
+      }
+
+    } catch (error) {
+      console.warn(
+        "JNX printer sound could not stop:",
+        error
+      );
+    }
+  }
+
+
+  /*
    * RESET ANIMATION
    */
   overlay.classList.remove(
@@ -439,6 +649,8 @@ function showPrintingAnimation(order) {
       "printing"
     );
 
+    startJnxPrinterSound();
+
 
     if (printedPaper) {
 
@@ -485,6 +697,16 @@ function showPrintingAnimation(order) {
     }
 
   }, 3800);
+
+
+  /*
+   * STOP PRINTER SOUND
+   */
+  setTimeout(() => {
+
+    stopJnxPrinterSound();
+
+  }, 3900);
 
 
   setTimeout(() => {

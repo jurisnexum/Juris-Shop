@@ -12,7 +12,7 @@
  * IMPORTANT:
  * 1. Put this code in a standalone Google Apps Script project.
  * 2. Run setupShop() once.
- * 3. Deploy as Web app:
+ * 3. Deploy as Web app:grep -n -E "image|product.image|modern-product-image|FALLBACK_PRODUCTS" js/shop.js
  *    Execute as: Me
  *    Who has access: Anyone
  * 4. Copy the Web App URL into js/config.js.
@@ -53,7 +53,11 @@ function doGet(e) {
       }
 
       return jsonOutput_(verifyMember_({
-        memberId: memberId
+        memberId: memberId,
+        fullName: e.parameter.fullName || "",
+        program: e.parameter.program || "",
+        yearLevel: e.parameter.yearLevel || "",
+        section: e.parameter.section || ""
       }));
     }
 
@@ -287,6 +291,11 @@ function setupShop() {
 function verifyMember_(data) {
   const memberId = String(data.memberId || "").trim();
 
+  const buyerName = String(data.fullName || "").trim();
+  const buyerProgram = String(data.program || "").trim();
+  const buyerYearLevel = String(data.yearLevel || "").trim();
+  const buyerSection = String(data.section || "").trim();
+
   if (!memberId) {
     throw new Error("Member ID is required.");
   }
@@ -304,6 +313,28 @@ function verifyMember_(data) {
     return {
       ok: false,
       error: "This membership is not currently active."
+    };
+  }
+
+  /*
+   * STRICT MEMBER IDENTITY VERIFICATION
+   *
+   * The information submitted by the buyer must match
+   * the official Members sheet before member pricing
+   * can be applied.
+   */
+  const identityMatches =
+    buyerName === member.fullName.trim() &&
+    buyerProgram === member.program.trim() &&
+    buyerYearLevel === member.yearLevel.trim() &&
+    buyerSection === member.section.trim();
+
+  if (!identityMatches) {
+    return {
+      ok: false,
+      error:
+        "Member information does not match our official records. " +
+        "Member discount cannot be applied."
     };
   }
 
@@ -377,7 +408,47 @@ function createOrder_(data) {
       }
     }
 
-    const isMember = !!member;
+    /*
+     * FINAL MEMBER IDENTITY CHECK
+     *
+     * Never trust the browser's verifiedMember state.
+     * The buyer's submitted identity must match the
+     * official Members sheet before member pricing
+     * can be used.
+     */
+    let isMember = false;
+
+    if (member) {
+      const buyerName =
+        String(data.fullName || "").trim();
+
+      const buyerProgram =
+        String(data.program || "").trim();
+
+      const buyerYearLevel =
+        String(data.yearLevel || "").trim();
+
+      const buyerSection =
+        String(data.section || "").trim();
+
+      const identityMatches =
+        buyerName === member.fullName.trim() &&
+        buyerProgram === member.program.trim() &&
+        buyerYearLevel === member.yearLevel.trim() &&
+        buyerSection === member.section.trim();
+
+      if (identityMatches) {
+        isMember = true;
+      } else {
+        /*
+         * Member ID may be valid, but the submitted
+         * buyer information does not belong to that
+         * member. Continue the order as REGULAR pricing.
+         */
+        member = null;
+        isMember = false;
+      }
+    }
 
     const products = readProductsMap_(productSheet);
 

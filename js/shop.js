@@ -1,3 +1,48 @@
+
+function normalizeProductImage(url) {
+  const value = String(url || "").trim();
+
+  if (!value) {
+    return "assets/jnx-logo.png";
+  }
+
+  // Google Drive:
+  // https://drive.google.com/file/d/FILE_ID/view
+  let match = value.match(
+    /drive\.google\.com\/file\/d\/([^/?#]+)/
+  );
+
+  if (match) {
+    return "https://drive.google.com/uc?export=download&id=" +
+      encodeURIComponent(match[1]);
+  }
+
+  // Google Drive:
+  // https://drive.google.com/open?id=FILE_ID
+  match = value.match(
+    /drive\.google\.com\/open\?id=([^&#]+)/
+  );
+
+  if (match) {
+    return "https://drive.google.com/uc?export=download&id=" +
+      encodeURIComponent(match[1]);
+  }
+
+  // Google Drive:
+  // https://drive.google.com/uc?id=FILE_ID
+  match = value.match(
+    /drive\.google\.com\/uc\?(?:export=[^&]*&)?id=([^&#]+)/
+  );
+
+  if (match) {
+    return "https://drive.google.com/uc?export=download&id=" +
+      encodeURIComponent(match[1]);
+  }
+
+  // Already a direct image URL
+  return value;
+}
+
 const CART_KEY = "jnx_merch_cart_v1";
 
 const FALLBACK_PRODUCTS = [
@@ -392,9 +437,7 @@ function renderProducts(
           initialVariant
         );
 
-      const image =
-        product.image ||
-        "assets/jnx-logo.png";
+      const image = normalizeProductImage(product.image);
 
       return `
         <article class="modern-product-card">

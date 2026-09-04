@@ -541,7 +541,49 @@
         align-items: flex-start;
       }
     }
-  </style>
+  
+.jnx-cart-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  background: #111111;
+  color: #ffffff;
+  padding: 11px 16px;
+  border-radius: 100px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: .2s ease;
+}
+
+.jnx-cart-link:hover {
+  background: #6d28d9;
+  color: #ffffff;
+}
+
+.jnx-cart-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.jnx-cart-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  background: #6d28d9;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+</style>
 </head>
 
 <body>
@@ -565,6 +607,13 @@
         <a href="track-order.html" class="active">
           Track Order
         </a>
+
+        <a href="checkout.html" class="jnx-cart-link" aria-label="Shopping Cart">
+          <span class="jnx-cart-icon">🛒</span>
+          <span>Cart</span>
+          <span id="cartCount" class="jnx-cart-count">0</span>
+        </a>
+
       </nav>
 
     </div>
@@ -1257,6 +1306,39 @@
     );
 
   </script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function updateCartCount() {
+    try {
+      const cart = JSON.parse(
+        localStorage.getItem("jnx_merch_cart_v1") || "[]"
+      );
+
+      const count = cart.reduce(
+        (sum, item) => sum + Number(item.quantity || 0),
+        0
+      );
+
+      const cartCount = document.getElementById("cartCount");
+
+      if (cartCount) {
+        cartCount.textContent = count;
+      }
+    } catch (error) {
+      console.error("Unable to read cart:", error);
+    }
+  }
+
+  updateCartCount();
+
+  window.addEventListener("storage", updateCartCount);
+  window.addEventListener("pageshow", updateCartCount);
+
+  setInterval(updateCartCount, 500);
+});
+</script>
 
 </body>
 </html>

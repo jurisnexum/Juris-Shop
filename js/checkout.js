@@ -440,7 +440,13 @@ async function verifyMember() {
   try {
     const response =
       await fetch(
-        `${API_URL}?action=verifyMember&memberId=${encodeURIComponent(memberId)}&t=${Date.now()}`,
+        `${API_URL}?action=verifyMember` +
+        `&memberId=${encodeURIComponent(memberId)}` +
+        `&fullName=${encodeURIComponent(document.getElementById("fullName").value.trim())}` +
+        `&program=${encodeURIComponent(document.getElementById("program").value.trim())}` +
+        `&yearLevel=${encodeURIComponent(document.getElementById("yearLevel").value)}` +
+        `&section=${encodeURIComponent(document.getElementById("section").value.trim())}` +
+        `&t=${Date.now()}`,
         {
           cache: "no-store"
         }
