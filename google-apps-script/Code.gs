@@ -291,21 +291,21 @@ function setupShop() {
 function normalizeMemberName_(value) {
   return String(value || "")
     .normalize("NFD")
-    .replace(/[\\u0300-\\u036f]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .trim()
-    .replace(/\\s+/g, " ")
+    .replace(/\s+/g, " ")
     .toLowerCase();
 }
 
 function verifyMember_(data) {
-  const memberId =
-    String(data.memberId || "").trim();
-
-  const buyerName =
-    String(data.fullName || "").trim();
+  const memberId = String(data.memberId || "").trim();
+  const buyerName = String(data.fullName || "").trim();
 
   if (!memberId) {
-    throw new Error("Member ID is required.");
+    return {
+      ok: false,
+      error: "Member ID is required."
+    };
   }
 
   if (!buyerName) {
@@ -315,8 +315,7 @@ function verifyMember_(data) {
     };
   }
 
-  const member =
-    findMember_(memberId);
+  const member = findMember_(memberId);
 
   if (!member) {
     return {
@@ -332,15 +331,13 @@ function verifyMember_(data) {
     };
   }
 
-  const identityMatches =
-    normalizeMemberName_(buyerName) ===
-    normalizeMemberName_(member.fullName);
+  const enteredName = normalizeMemberName_(buyerName);
+  const registeredName = normalizeMemberName_(member.fullName);
 
-  if (!identityMatches) {
+  if (enteredName !== registeredName) {
     return {
       ok: false,
-      error:
-        "The name does not match the name registered to this Member ID."
+      error: "The name does not match the name registered to this Member ID."
     };
   }
 

@@ -433,91 +433,76 @@ function fileToBase64(file) {
 }
 
 async function verifyMember() {
-  const input =
-    document.getElementById(
-      "memberId"
-    );
+  const input = document.getElementById("memberId");
+  const button = document.getElementById("verifyMemberButton");
+  const message = document.getElementById("memberMessage");
+  const fullNameInput = document.getElementById("fullName");
 
-  const button =
-    document.getElementById(
-      "verifyMemberButton"
-    );
-
-  const message =
-    document.getElementById(
-      "memberMessage"
-    );
-
-  const memberId =
-    input.value.trim();
+  const memberId = input.value.trim();
+  const fullName = fullNameInput.value.trim();
 
   if (!memberId) {
     verifiedMember = null;
 
-    message.textContent =
-      "Please enter your Member ID.";
+    message.textContent = "Please enter your Member ID.";
+    message.className = "member-message error";
 
-    message.className =
-      "member-message error";
+    renderCart();
+    return;
+  }
+
+  if (!fullName) {
+    verifiedMember = null;
+
+    message.textContent = "Please enter your full name first.";
+    message.className = "member-message error";
 
     renderCart();
     return;
   }
 
   button.disabled = true;
-  button.textContent =
-    "Verifying...";
+  button.textContent = "Verifying...";
 
-  message.textContent =
-    "Checking membership...";
-
-  message.className =
-    "member-message";
+  message.textContent = "Checking membership...";
+  message.className = "member-message";
 
   try {
-    const response =
-      await fetch(
-        `${API_URL}?action=verifyMember` +
-        `&memberId=${encodeURIComponent(memberId)}` +
-        `&fullName=${encodeURIComponent(document.getElementById("fullName").value.trim())}` +
-        `&t=${Date.now()}`,
-        {
-          cache: "no-store"
-        }
-      );
+    const url =
+      `${API_URL}?action=verifyMember` +
+      `&memberId=${encodeURIComponent(memberId)}` +
+      `&fullName=${encodeURIComponent(fullName)}` +
+      `&t=${Date.now()}`;
 
-    const result =
-      await response.json();
+    const response = await fetch(url, {
+      cache: "no-store"
+    });
+
+    const result = await response.json();
 
     if (!result.ok) {
       verifiedMember = null;
 
       message.textContent =
-        result.error ||
-        "Member verification failed.";
+        result.error || "Member verification failed.";
 
-      message.className =
-        "member-message error";
+      message.className = "member-message error";
 
       renderCart();
       return;
     }
 
     verifiedMember = {
-      memberId:
-        result.memberId,
-      memberName:
-        result.memberName,
-      pricingType:
-        result.pricingType
+      memberId: result.memberId,
+      memberName: result.memberName,
+      pricingType: "JNX Member"
     };
 
     message.innerHTML =
       `✓ Member verified — <strong>${escapeHtml(result.memberName)}</strong><br>
        Member discount has been applied.`;
 
-    message.className =
-      "member-message success";
+    message.className = "member-message success";
 
     renderCart();
 
@@ -525,18 +510,15 @@ async function verifyMember() {
     verifiedMember = null;
 
     message.textContent =
-      err.message ||
-      "Unable to verify membership.";
+      err.message || "Unable to verify membership.";
 
-    message.className =
-      "member-message error";
+    message.className = "member-message error";
 
     renderCart();
 
   } finally {
     button.disabled = false;
-    button.textContent =
-      "Verify Member";
+    button.textContent = "Verify Member";
   }
 }
 
