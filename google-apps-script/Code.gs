@@ -288,19 +288,35 @@ function setupShop() {
 /**
  * Verify whether a Member ID belongs to an active JNX member.
  */
-function verifyMember_(data) {
-  const memberId = String(data.memberId || "").trim();
+function normalizeMemberName_(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\\u0300-\\u036f]/g, "")
+    .trim()
+    .replace(/\\s+/g, " ")
+    .toLowerCase();
+}
 
-  const buyerName = String(data.fullName || "").trim();
-  const buyerProgram = String(data.program || "").trim();
-  const buyerYearLevel = String(data.yearLevel || "").trim();
-  const buyerSection = String(data.section || "").trim();
+function verifyMember_(data) {
+  const memberId =
+    String(data.memberId || "").trim();
+
+  const buyerName =
+    String(data.fullName || "").trim();
 
   if (!memberId) {
     throw new Error("Member ID is required.");
   }
 
-  const member = findMember_(memberId);
+  if (!buyerName) {
+    return {
+      ok: false,
+      error: "Please enter your full name before verifying."
+    };
+  }
+
+  const member =
+    findMember_(memberId);
 
   if (!member) {
     return {
@@ -316,25 +332,15 @@ function verifyMember_(data) {
     };
   }
 
-  /*
-   * STRICT MEMBER IDENTITY VERIFICATION
-   *
-   * The information submitted by the buyer must match
-   * the official Members sheet before member pricing
-   * can be applied.
-   */
   const identityMatches =
-    buyerName === member.fullName.trim() &&
-    buyerProgram === member.program.trim() &&
-    buyerYearLevel === member.yearLevel.trim() &&
-    buyerSection === member.section.trim();
+    normalizeMemberName_(buyerName) ===
+    normalizeMemberName_(member.fullName);
 
   if (!identityMatches) {
     return {
       ok: false,
       error:
-        "Member information does not match our official records. " +
-        "Member discount cannot be applied."
+        "The name does not match the name registered to this Member ID."
     };
   }
 
@@ -431,11 +437,15 @@ function createOrder_(data) {
       const buyerSection =
         String(data.section || "").trim();
 
+      const normalizeName = value =>
+        String(value || "")
+          .trim()
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+
       const identityMatches =
-        buyerName === member.fullName.trim() &&
-        buyerProgram === member.program.trim() &&
-        buyerYearLevel === member.yearLevel.trim() &&
-        buyerSection === member.section.trim();
+        normalizeMemberName_(buyerName) ===
+        normalizeMemberName_(member.fullName);
 
       if (identityMatches) {
         isMember = true;

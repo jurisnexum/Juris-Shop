@@ -93,6 +93,43 @@ function getItemMemberPrice(item) {
   return Number(item.price) || 0;
 }
 
+
+function invalidateMemberVerification() {
+  if (!verifiedMember) return;
+
+  verifiedMember = null;
+
+  const message =
+    document.getElementById("memberMessage");
+
+  if (message) {
+    message.textContent =
+      "Buyer information changed. Please verify the Member ID again.";
+
+    message.className =
+      "member-message error";
+  }
+
+  renderCart();
+}
+
+function setupMemberIdentityListeners() {
+  const element =
+    document.getElementById("fullName");
+
+  if (!element) return;
+
+  element.addEventListener(
+    "input",
+    invalidateMemberVerification
+  );
+
+  element.addEventListener(
+    "change",
+    invalidateMemberVerification
+  );
+}
+
 function getItemAppliedPrice(item) {
   return verifiedMember
     ? getItemMemberPrice(item)
@@ -443,9 +480,6 @@ async function verifyMember() {
         `${API_URL}?action=verifyMember` +
         `&memberId=${encodeURIComponent(memberId)}` +
         `&fullName=${encodeURIComponent(document.getElementById("fullName").value.trim())}` +
-        `&program=${encodeURIComponent(document.getElementById("program").value.trim())}` +
-        `&yearLevel=${encodeURIComponent(document.getElementById("yearLevel").value)}` +
-        `&section=${encodeURIComponent(document.getElementById("section").value.trim())}` +
         `&t=${Date.now()}`,
         {
           cache: "no-store"
@@ -816,3 +850,6 @@ document.addEventListener(
       );
   }
 );
+
+
+document.addEventListener('DOMContentLoaded', setupMemberIdentityListeners);
