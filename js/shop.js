@@ -725,95 +725,189 @@ async function loadProducts() {
 
 
 function animateAddToCart(productId) {
-  const card = document.querySelector(
-    `.modern-product-card:has(#add-${productId})`
-  );
+  const button =
+    document.getElementById(`add-${productId}`);
 
-  const button = document.getElementById(`add-${productId}`);
-  const cartCount = document.getElementById("cartCount");
+  const card =
+    button
+      ? button.closest(".modern-product-card")
+      : null;
 
+  const cartCount =
+    document.getElementById("cartCount");
+
+  /* Button smash */
   if (button) {
-    button.classList.remove("cart-button-smash");
+    button.classList.remove(
+      "cart-button-smash"
+    );
+
     void button.offsetWidth;
-    button.classList.add("cart-button-smash");
+
+    button.classList.add(
+      "cart-button-smash"
+    );
 
     setTimeout(() => {
-      button.classList.remove("cart-button-smash");
-    }, 450);
+      button.classList.remove(
+        "cart-button-smash"
+      );
+    }, 500);
   }
 
+  /* Product card impact */
   if (card) {
-    const image = card.querySelector(".modern-product-image");
+    card.classList.remove(
+      "cart-card-impact"
+    );
 
-    if (image) {
-      const rect = image.getBoundingClientRect();
-      const flyingImage = image.cloneNode(true);
+    void card.offsetWidth;
 
-      flyingImage.classList.add("flying-cart-image");
+    card.classList.add(
+      "cart-card-impact"
+    );
 
-      flyingImage.style.position = "fixed";
-      flyingImage.style.left = `${rect.left}px`;
-      flyingImage.style.top = `${rect.top}px`;
-      flyingImage.style.width = `${rect.width}px`;
-      flyingImage.style.height = `${rect.height}px`;
-
-      document.body.appendChild(flyingImage);
-
-      const cartTarget =
-        document.querySelector("#cartCount") ||
-        document.querySelector(".cart-link") ||
-        document.querySelector("[href*='checkout']");
-
-      if (cartTarget) {
-        const targetRect = cartTarget.getBoundingClientRect();
-
-        const targetX =
-          targetRect.left + targetRect.width / 2;
-
-        const targetY =
-          targetRect.top + targetRect.height / 2;
-
-        const startX =
-          rect.left + rect.width / 2;
-
-        const startY =
-          rect.top + rect.height / 2;
-
-        flyingImage.style.setProperty(
-          "--fly-x",
-          `${targetX - startX}px`
-        );
-
-        flyingImage.style.setProperty(
-          "--fly-y",
-          `${targetY - startY}px`
-        );
-
-        requestAnimationFrame(() => {
-          flyingImage.classList.add(
-            "flying-cart-image-active"
-          );
-        });
-
-        setTimeout(() => {
-          flyingImage.remove();
-        }, 700);
-      } else {
-        flyingImage.remove();
-      }
-    }
+    setTimeout(() => {
+      card.classList.remove(
+        "cart-card-impact"
+      );
+    }, 600);
   }
 
+  /* Cart counter pop */
   if (cartCount) {
-    cartCount.classList.remove("cart-count-pop");
+    cartCount.classList.remove(
+      "cart-count-pop"
+    );
 
     void cartCount.offsetWidth;
 
-    cartCount.classList.add("cart-count-pop");
+    cartCount.classList.add(
+      "cart-count-pop"
+    );
 
     setTimeout(() => {
-      cartCount.classList.remove("cart-count-pop");
-    }, 500);
+      cartCount.classList.remove(
+        "cart-count-pop"
+      );
+    }, 600);
+  }
+
+  /* Floating +1 effect */
+  if (button) {
+    const rect =
+      button.getBoundingClientRect();
+
+    const plus =
+      document.createElement("div");
+
+    plus.className =
+      "cart-plus-one";
+
+    plus.textContent =
+      "+1";
+
+    plus.style.left =
+      `${rect.left + rect.width / 2}px`;
+
+    plus.style.top =
+      `${rect.top}px`;
+
+    document.body.appendChild(plus);
+
+    requestAnimationFrame(() => {
+      plus.classList.add(
+        "cart-plus-one-active"
+      );
+    });
+
+    setTimeout(() => {
+      plus.remove();
+    }, 750);
+  }
+
+  /* Flying product image */
+  if (card) {
+    const image =
+      card.querySelector(
+        ".modern-product-image"
+      );
+
+    if (image) {
+      const rect =
+        image.getBoundingClientRect();
+
+      const flying =
+        image.cloneNode(true);
+
+      flying.className =
+        "flying-cart-image";
+
+      flying.style.position =
+        "fixed";
+
+      flying.style.left =
+        `${rect.left}px`;
+
+      flying.style.top =
+        `${rect.top}px`;
+
+      flying.style.width =
+        `${rect.width}px`;
+
+      flying.style.height =
+        `${rect.height}px`;
+
+      document.body.appendChild(
+        flying
+      );
+
+      let targetX =
+        window.innerWidth - 45;
+
+      let targetY = 45;
+
+      if (cartCount) {
+        const cartRect =
+          cartCount.getBoundingClientRect();
+
+        targetX =
+          cartRect.left +
+          cartRect.width / 2;
+
+        targetY =
+          cartRect.top +
+          cartRect.height / 2;
+      }
+
+      const startX =
+        rect.left +
+        rect.width / 2;
+
+      const startY =
+        rect.top +
+        rect.height / 2;
+
+      flying.style.setProperty(
+        "--fly-x",
+        `${targetX - startX}px`
+      );
+
+      flying.style.setProperty(
+        "--fly-y",
+        `${targetY - startY}px`
+      );
+
+      requestAnimationFrame(() => {
+        flying.classList.add(
+          "flying-cart-image-active"
+        );
+      });
+
+      setTimeout(() => {
+        flying.remove();
+      }, 750);
+    }
   }
 }
 
