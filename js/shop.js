@@ -725,151 +725,119 @@ async function loadProducts() {
 
 
 function animateAddToCart(productId) {
-  const button =
-    document.getElementById(`add-${productId}`);
+  const button = document.getElementById(`add-${productId}`);
+  const card = button ? button.closest(".modern-product-card") : null;
+  const cartCount = document.getElementById("cartCount");
 
-  const card =
-    button
-      ? button.closest(".modern-product-card")
-      : null;
-
-  const cartCount =
-    document.getElementById("cartCount");
-
-  /* Button smash */
+  /* =========================================
+     1. BUTTON SMASH
+     ========================================= */
   if (button) {
-    button.classList.remove(
-      "cart-button-smash"
-    );
-
+    button.style.setProperty("animation", "none", "important");
     void button.offsetWidth;
 
-    button.classList.add(
-      "cart-button-smash"
+    button.style.setProperty(
+      "animation",
+      "jnxButtonSmashForce 550ms cubic-bezier(.2,.8,.2,1)",
+      "important"
     );
 
     setTimeout(() => {
-      button.classList.remove(
-        "cart-button-smash"
-      );
-    }, 500);
-  }
-
-  /* Product card impact */
-  if (card) {
-    card.classList.remove(
-      "cart-card-impact"
-    );
-
-    void card.offsetWidth;
-
-    card.classList.add(
-      "cart-card-impact"
-    );
-
-    setTimeout(() => {
-      card.classList.remove(
-        "cart-card-impact"
-      );
+      button.style.removeProperty("animation");
     }, 600);
   }
 
-  /* Cart counter pop */
-  if (cartCount) {
-    cartCount.classList.remove(
-      "cart-count-pop"
-    );
+  /* =========================================
+     2. PRODUCT CARD IMPACT
+     ========================================= */
+  if (card) {
+    card.classList.remove("cart-card-impact");
+    void card.offsetWidth;
+    card.classList.add("cart-card-impact");
 
+    setTimeout(() => {
+      card.classList.remove("cart-card-impact");
+    }, 700);
+  }
+
+  /* =========================================
+     3. CART COUNT POP
+     ========================================= */
+  if (cartCount) {
+    cartCount.style.setProperty("animation", "none", "important");
     void cartCount.offsetWidth;
 
-    cartCount.classList.add(
-      "cart-count-pop"
+    cartCount.style.setProperty(
+      "animation",
+      "jnxCartCountPopForce 600ms cubic-bezier(.2,.8,.2,1)",
+      "important"
     );
 
     setTimeout(() => {
-      cartCount.classList.remove(
-        "cart-count-pop"
-      );
-    }, 600);
+      cartCount.style.removeProperty("animation");
+    }, 700);
   }
 
-  /* Floating +1 effect */
+  /* =========================================
+     4. FLOATING +1
+     ========================================= */
   if (button) {
-    const rect =
-      button.getBoundingClientRect();
+    const rect = button.getBoundingClientRect();
 
-    const plus =
-      document.createElement("div");
+    const plus = document.createElement("div");
 
-    plus.className =
-      "cart-plus-one";
+    plus.textContent = "+1";
+    plus.className = "jnx-floating-plus";
 
-    plus.textContent =
-      "+1";
-
-    plus.style.left =
-      `${rect.left + rect.width / 2}px`;
-
-    plus.style.top =
-      `${rect.top}px`;
+    plus.style.position = "fixed";
+    plus.style.left = `${rect.left + rect.width / 2}px`;
+    plus.style.top = `${rect.top + 10}px`;
+    plus.style.zIndex = "2147483647";
+    plus.style.pointerEvents = "none";
 
     document.body.appendChild(plus);
 
-    requestAnimationFrame(() => {
-      plus.classList.add(
-        "cart-plus-one-active"
-      );
-    });
+    /* Force browser to recognize initial state */
+    void plus.offsetWidth;
+
+    plus.classList.add("jnx-floating-plus-show");
 
     setTimeout(() => {
       plus.remove();
-    }, 750);
+    }, 900);
   }
 
-  /* Flying product image */
+  /* =========================================
+     5. FLYING PRODUCT IMAGE
+     ========================================= */
   if (card) {
-    const image =
-      card.querySelector(
-        ".modern-product-image"
-      );
+    const image = card.querySelector(".modern-product-image");
 
     if (image) {
-      const rect =
-        image.getBoundingClientRect();
+      const rect = image.getBoundingClientRect();
 
-      const flying =
-        image.cloneNode(true);
+      const flying = document.createElement("img");
 
-      flying.className =
-        "flying-cart-image";
+      flying.src = image.currentSrc || image.src;
+      flying.alt = "";
+      flying.className = "jnx-flying-product";
 
-      flying.style.position =
-        "fixed";
+      flying.style.position = "fixed";
+      flying.style.left = `${rect.left}px`;
+      flying.style.top = `${rect.top}px`;
+      flying.style.width = `${rect.width}px`;
+      flying.style.height = `${rect.height}px`;
+      flying.style.zIndex = "2147483646";
+      flying.style.pointerEvents = "none";
+      flying.style.objectFit = "contain";
 
-      flying.style.left =
-        `${rect.left}px`;
+      document.body.appendChild(flying);
 
-      flying.style.top =
-        `${rect.top}px`;
-
-      flying.style.width =
-        `${rect.width}px`;
-
-      flying.style.height =
-        `${rect.height}px`;
-
-      document.body.appendChild(
-        flying
-      );
-
-      let targetX =
-        window.innerWidth - 45;
-
-      let targetY = 45;
+      let targetX = window.innerWidth - 50;
+      let targetY = 50;
 
       if (cartCount) {
-        const cartRect =
-          cartCount.getBoundingClientRect();
+        const cartRect = cartCount.getBoundingClientRect();
 
         targetX =
           cartRect.left +
@@ -898,19 +866,17 @@ function animateAddToCart(productId) {
         `${targetY - startY}px`
       );
 
-      requestAnimationFrame(() => {
-        flying.classList.add(
-          "flying-cart-image-active"
-        );
-      });
+      /* Force initial layout */
+      void flying.offsetWidth;
+
+      flying.classList.add("jnx-flying-product-show");
 
       setTimeout(() => {
         flying.remove();
-      }, 750);
+      }, 900);
     }
   }
 }
-
 function escapeHtml(value) {
   return String(value ?? "")
     .replace(

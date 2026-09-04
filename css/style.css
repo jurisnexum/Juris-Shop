@@ -2088,3 +2088,192 @@ footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px
     flex-direction: column;
   }
 }
+
+/* =========================================================
+   JNX FORCE CART ANIMATIONS
+   These animations intentionally use high z-index and
+   !important rules so existing shop styles cannot hide them.
+   ========================================================= */
+
+/* BUTTON SMASH */
+
+@keyframes jnxButtonSmashForce {
+  0% {
+    transform: scale(1) !important;
+  }
+
+  15% {
+    transform: scale(.78) rotate(-2deg) !important;
+  }
+
+  30% {
+    transform: scale(1.16) rotate(2deg) !important;
+  }
+
+  45% {
+    transform: scale(.90) rotate(-1deg) !important;
+  }
+
+  65% {
+    transform: scale(1.07) !important;
+  }
+
+  82% {
+    transform: scale(.97) !important;
+  }
+
+  100% {
+    transform: scale(1) !important;
+  }
+}
+
+
+/* FLOATING +1 */
+
+.jnx-floating-plus {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+
+  color: #111 !important;
+  background: #fff !important;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif !important;
+
+  font-size: 26px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+
+  padding: 7px 11px !important;
+  border-radius: 999px !important;
+
+  box-shadow:
+    0 8px 24px rgba(0,0,0,.22) !important;
+
+  transform:
+    translate(-50%, 0)
+    scale(.6) !important;
+
+  transition:
+    transform .75s cubic-bezier(.2,.8,.2,1),
+    opacity .75s ease !important;
+}
+
+.jnx-floating-plus-show {
+  opacity: 0 !important;
+
+  transform:
+    translate(-50%, -90px)
+    scale(1.35) !important;
+}
+
+
+/* FLYING PRODUCT */
+
+.jnx-flying-product {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+
+  max-width: none !important;
+  max-height: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  border: 0 !important;
+  border-radius: 14px !important;
+
+  box-sizing: border-box !important;
+
+  object-fit: contain !important;
+
+  transform:
+    translate(0, 0)
+    scale(1)
+    rotate(0deg) !important;
+
+  transition:
+    transform .8s cubic-bezier(.2,.8,.2,1),
+    opacity .8s ease !important;
+}
+
+.jnx-flying-product-show {
+  opacity: 0 !important;
+
+  transform:
+    translate(
+      var(--fly-x),
+      var(--fly-y)
+    )
+    scale(.08)
+    rotate(25deg) !important;
+}
+
+
+/* CART COUNT */
+
+@keyframes jnxCartCountPopForce {
+  0% {
+    transform: scale(1) !important;
+  }
+
+  20% {
+    transform: scale(1.65) rotate(-8deg) !important;
+  }
+
+  40% {
+    transform: scale(.78) rotate(8deg) !important;
+  }
+
+  60% {
+    transform: scale(1.25) rotate(-4deg) !important;
+  }
+
+  80% {
+    transform: scale(.95) !important;
+  }
+
+  100% {
+    transform: scale(1) !important;
+  }
+}
+
+
+/* CARD IMPACT */
+
+.cart-card-impact {
+  animation:
+    jnxCardImpactForce
+    .65s
+    cubic-bezier(.2,.8,.2,1) !important;
+}
+
+@keyframes jnxCardImpactForce {
+  0% {
+    transform: scale(1) !important;
+  }
+
+  20% {
+    transform: scale(.96) !important;
+  }
+
+  40% {
+    transform: scale(1.035) !important;
+  }
+
+  60% {
+    transform: scale(.985) !important;
+  }
+
+  80% {
+    transform: scale(1.012) !important;
+  }
+
+  100% {
+    transform: scale(1) !important;
+  }
+}
