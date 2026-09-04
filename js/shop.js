@@ -726,155 +726,215 @@ async function loadProducts() {
 
 function animateAddToCart(productId) {
   const button = document.getElementById(`add-${productId}`);
-  const card = button ? button.closest(".modern-product-card") : null;
-  const cartCount = document.getElementById("cartCount");
+
+  const card = button
+    ? button.closest(".modern-product-card")
+    : null;
+
+  const cartCount =
+    document.getElementById("cartCount");
+
 
   /* =========================================
-     1. BUTTON SMASH
+     BUTTON SMASH
      ========================================= */
-  if (button) {
-    button.style.setProperty("animation", "none", "important");
-    void button.offsetWidth;
 
-    button.style.setProperty(
-      "animation",
-      "jnxButtonSmashForce 550ms cubic-bezier(.2,.8,.2,1)",
-      "important"
-    );
+  if (button) {
+    const originalTransform =
+      button.style.transform;
+
+    button.style.transition =
+      "transform 120ms cubic-bezier(.2,.8,.2,1)";
+
+    button.style.transform =
+      "scale(.78)";
 
     setTimeout(() => {
-      button.style.removeProperty("animation");
-    }, 600);
+      button.style.transition =
+        "transform 120ms cubic-bezier(.2,.8,.2,1)";
+
+      button.style.transform =
+        "scale(1.13) rotate(-2deg)";
+
+    }, 120);
+
+    setTimeout(() => {
+      button.style.transform =
+        "scale(.94) rotate(1deg)";
+
+    }, 240);
+
+    setTimeout(() => {
+      button.style.transform =
+        "scale(1)";
+
+    }, 340);
+
+    setTimeout(() => {
+      button.style.transform =
+        originalTransform;
+
+      button.style.transition = "";
+
+    }, 500);
   }
 
+
   /* =========================================
-     2. PRODUCT CARD IMPACT
+     PRODUCT CARD IMPACT
      ========================================= */
+
   if (card) {
-    card.classList.remove("cart-card-impact");
+    card.classList.remove("jnx-card-impact");
+
     void card.offsetWidth;
-    card.classList.add("cart-card-impact");
+
+    card.classList.add("jnx-card-impact");
 
     setTimeout(() => {
-      card.classList.remove("cart-card-impact");
+      card.classList.remove("jnx-card-impact");
     }, 700);
   }
 
+
   /* =========================================
-     3. CART COUNT POP
+     CART COUNTER POP
      ========================================= */
+
   if (cartCount) {
-    cartCount.style.setProperty("animation", "none", "important");
-    void cartCount.offsetWidth;
+    const originalTransform =
+      cartCount.style.transform;
 
-    cartCount.style.setProperty(
-      "animation",
-      "jnxCartCountPopForce 600ms cubic-bezier(.2,.8,.2,1)",
-      "important"
-    );
+    cartCount.style.transition =
+      "transform 130ms cubic-bezier(.2,.8,.2,1)";
+
+    cartCount.style.transform =
+      "scale(1.55)";
 
     setTimeout(() => {
-      cartCount.style.removeProperty("animation");
-    }, 700);
+      cartCount.style.transform =
+        "scale(.82) rotate(-6deg)";
+    }, 130);
+
+    setTimeout(() => {
+      cartCount.style.transform =
+        "scale(1.25) rotate(5deg)";
+    }, 260);
+
+    setTimeout(() => {
+      cartCount.style.transform =
+        "scale(1)";
+    }, 390);
+
+    setTimeout(() => {
+      cartCount.style.transform =
+        originalTransform;
+
+      cartCount.style.transition = "";
+
+    }, 550);
   }
 
-  /* =========================================
-     4. FLOATING +1
-     ========================================= */
-  if (button) {
-    const rect = button.getBoundingClientRect();
 
-    const plus = document.createElement("div");
+  /* =========================================
+     +1 FLOATING EFFECT
+     ========================================= */
+
+  if (button) {
+    const rect =
+      button.getBoundingClientRect();
+
+    const plus =
+      document.createElement("div");
 
     plus.textContent = "+1";
-    plus.className = "jnx-floating-plus";
 
-    plus.style.position = "fixed";
-    plus.style.left = `${rect.left + rect.width / 2}px`;
-    plus.style.top = `${rect.top + 10}px`;
-    plus.style.zIndex = "2147483647";
-    plus.style.pointerEvents = "none";
+    /* Force all important visual properties */
+    Object.assign(
+      plus.style,
+      {
+        position: "fixed",
+        left: `${rect.left + rect.width / 2}px`,
+        top: `${rect.top + rect.height / 2}px`,
+
+        zIndex: "2147483647",
+
+        pointerEvents: "none",
+
+        display: "block",
+        visibility: "visible",
+
+        opacity: "1",
+
+        padding: "8px 14px",
+
+        borderRadius: "999px",
+
+        background: "#ffffff",
+
+        color: "#111111",
+
+        fontFamily:
+          "Arial, Helvetica, sans-serif",
+
+        fontSize: "26px",
+
+        fontWeight: "900",
+
+        lineHeight: "1",
+
+        whiteSpace: "nowrap",
+
+        boxShadow:
+          "0 8px 30px rgba(0,0,0,.30)",
+
+        transform:
+          "translate(-50%, -50%) scale(.5)"
+      }
+    );
 
     document.body.appendChild(plus);
 
-    /* Force browser to recognize initial state */
-    void plus.offsetWidth;
+    /* Animate directly with Web Animations API */
+    const animation =
+      plus.animate(
+        [
+          {
+            opacity: 1,
+            transform:
+              "translate(-50%, -50%) scale(.5)"
+          },
 
-    plus.classList.add("jnx-floating-plus-show");
+          {
+            opacity: 1,
+            transform:
+              "translate(-50%, -85%) scale(1.3)",
+            offset: .20
+          },
 
-    setTimeout(() => {
+          {
+            opacity: 1,
+            transform:
+              "translate(-50%, -145%) scale(1.1)",
+            offset: .50
+          },
+
+          {
+            opacity: 0,
+            transform:
+              "translate(-50%, -220%) scale(.8)"
+          }
+        ],
+        {
+          duration: 850,
+          easing:
+            "cubic-bezier(.2,.8,.2,1)"
+        }
+      );
+
+    animation.onfinish = () => {
       plus.remove();
-    }, 900);
-  }
-
-  /* =========================================
-     5. FLYING PRODUCT IMAGE
-     ========================================= */
-  if (card) {
-    const image = card.querySelector(".modern-product-image");
-
-    if (image) {
-      const rect = image.getBoundingClientRect();
-
-      const flying = document.createElement("img");
-
-      flying.src = image.currentSrc || image.src;
-      flying.alt = "";
-      flying.className = "jnx-flying-product";
-
-      flying.style.position = "fixed";
-      flying.style.left = `${rect.left}px`;
-      flying.style.top = `${rect.top}px`;
-      flying.style.width = `${rect.width}px`;
-      flying.style.height = `${rect.height}px`;
-      flying.style.zIndex = "2147483646";
-      flying.style.pointerEvents = "none";
-      flying.style.objectFit = "contain";
-
-      document.body.appendChild(flying);
-
-      let targetX = window.innerWidth - 50;
-      let targetY = 50;
-
-      if (cartCount) {
-        const cartRect = cartCount.getBoundingClientRect();
-
-        targetX =
-          cartRect.left +
-          cartRect.width / 2;
-
-        targetY =
-          cartRect.top +
-          cartRect.height / 2;
-      }
-
-      const startX =
-        rect.left +
-        rect.width / 2;
-
-      const startY =
-        rect.top +
-        rect.height / 2;
-
-      flying.style.setProperty(
-        "--fly-x",
-        `${targetX - startX}px`
-      );
-
-      flying.style.setProperty(
-        "--fly-y",
-        `${targetY - startY}px`
-      );
-
-      /* Force initial layout */
-      void flying.offsetWidth;
-
-      flying.classList.add("jnx-flying-product-show");
-
-      setTimeout(() => {
-        flying.remove();
-      }, 900);
-    }
+    };
   }
 }
 function escapeHtml(value) {

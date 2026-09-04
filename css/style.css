@@ -1869,25 +1869,6 @@ footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px
   100% { transform: scale(1); }
 }
 
-.flying-cart-image {
-  z-index: 99999;
-  pointer-events: none;
-  object-fit: contain;
-  opacity: 1;
-  border-radius: 12px;
-  transition:
-    transform .65s cubic-bezier(.2,.8,.2,1),
-    opacity .65s ease;
-}
-
-.flying-cart-image-active {
-  transform:
-    translate(var(--fly-x), var(--fly-y))
-    scale(.12)
-    rotate(12deg);
-  opacity: 0;
-}
-
 .cart-count-pop {
   animation: jnxCartCountPop .5s cubic-bezier(.2,.8,.2,1);
 }
@@ -2173,47 +2154,6 @@ footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px
 
 /* FLYING PRODUCT */
 
-.jnx-flying-product {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-
-  max-width: none !important;
-  max-height: none !important;
-
-  margin: 0 !important;
-  padding: 0 !important;
-
-  border: 0 !important;
-  border-radius: 14px !important;
-
-  box-sizing: border-box !important;
-
-  object-fit: contain !important;
-
-  transform:
-    translate(0, 0)
-    scale(1)
-    rotate(0deg) !important;
-
-  transition:
-    transform .8s cubic-bezier(.2,.8,.2,1),
-    opacity .8s ease !important;
-}
-
-.jnx-flying-product-show {
-  opacity: 0 !important;
-
-  transform:
-    translate(
-      var(--fly-x),
-      var(--fly-y)
-    )
-    scale(.08)
-    rotate(25deg) !important;
-}
-
-
 /* CART COUNT */
 
 @keyframes jnxCartCountPopForce {
@@ -2276,4 +2216,107 @@ footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px
   100% {
     transform: scale(1) !important;
   }
+}
+
+/* =========================================================
+   JNX CART EFFECTS
+   No product flying animation
+   ========================================================= */
+
+/* BUTTON SMASH */
+
+15% {
+    transform: scale(0.78);
+  }
+
+  30% {
+    transform: scale(1.16);
+  }
+
+  45% {
+    transform: scale(0.90);
+  }
+
+  60% {
+    transform: scale(1.07);
+  }
+
+  75% {
+    transform: scale(0.97);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+/* CARD IMPACT */
+
+.jnx-card-impact {
+  animation:
+    jnx-card-impact
+    0.65s
+    cubic-bezier(.2,.8,.2,1) !important;
+}
+
+@keyframes jnx-card-impact {
+
+  0% {
+    transform: scale(1);
+  }
+
+  20% {
+    transform: scale(0.96);
+  }
+
+  40% {
+    transform: scale(1.035);
+  }
+
+  60% {
+    transform: scale(0.985);
+  }
+
+  80% {
+    transform: scale(1.012);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+/* CART COUNTER POP */
+
+20% {
+    transform: scale(1.6) rotate(-8deg);
+  }
+
+  40% {
+    transform: scale(0.8) rotate(8deg);
+  }
+
+  60% {
+    transform: scale(1.25) rotate(-4deg);
+  }
+
+  80% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+/* FLOATING +1 */
+
+/* SMALL SCREEN */
+
+@media (max-width: 600px) {
+
+
 }
