@@ -3,857 +3,135 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="description" content="Official Juris Nexum Merchandise Shop">
   <title>Juris Nexum | Official Merchandise</title>
-
-  <meta
-    name="description"
-    content="Official Juris Nexum merchandise shop."
-  >
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f5f3ef;
-      color: #111111;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    /* =========================
-       NAVIGATION
-    ========================= */
-
-    .jnx-nav {
-      position: relative;
-      z-index: 20;
-      width: 100%;
-      background: #f5f3ef;
-      border-bottom: 1px solid #d9d5ce;
-    }
-
-    .jnx-nav-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 20px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 30px;
-    }
-
-    .jnx-brand {
-      display: flex;
-      flex-direction: column;
-      line-height: 1;
-    }
-
-    .jnx-brand-main {
-      font-size: 19px;
-      font-weight: 900;
-      letter-spacing: 1.5px;
-    }
-
-    .jnx-brand-sub {
-      margin-top: 6px;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 2.5px;
-      color: #6d28d9;
-    }
-
-    .jnx-nav-links {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .5px;
-      text-transform: uppercase;
-    }
-
-    .jnx-nav-links a {
-      position: relative;
-      padding: 5px 0;
-    }
-
-    .jnx-nav-links a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 0;
-      height: 2px;
-      background: #6d28d9;
-      transition: width .25s ease;
-    }
-
-    .jnx-nav-links a:hover::after {
-      width: 100%;
-    }
-
-    /* =========================
-       CART NAVIGATION
-    ========================= */
-
-    .jnx-cart-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .jnx-cart-icon {
-      font-size: 14px;
-      line-height: 1;
-      filter: grayscale(1);
-      transition: filter .2s ease;
-    }
-
-    .jnx-cart-link:hover .jnx-cart-icon {
-      filter: grayscale(0);
-    }
-
-    .jnx-cart-count {
-      min-width: 19px;
-      height: 19px;
-      padding: 0 5px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: #6d28d9;
-      color: #ffffff;
-      font-size: 9px;
-      font-weight: 800;
-      line-height: 1;
-    }
-
-    /* =========================
-       HERO
-    ========================= */
-
-    .jnx-hero {
-      position: relative;
-      overflow: hidden;
-      min-height: calc(100vh - 76px);
-      padding: 55px 32px 70px;
-      display: flex;
-      align-items: center;
-      background: #f5f3ef;
-    }
-
-    .jnx-hero::before {
-      content: "";
-      position: absolute;
-      width: 420px;
-      height: 420px;
-      right: -160px;
-      top: 80px;
-      border-radius: 50%;
-      background: #e9ddf8;
-      opacity: .55;
-    }
-
-    .jnx-hero::after {
-      content: "";
-      position: absolute;
-      width: 260px;
-      height: 260px;
-      left: -140px;
-      bottom: -100px;
-      border-radius: 50%;
-      background: #ead7d9;
-      opacity: .45;
-    }
-
-    .jnx-hero-content {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      max-width: 1280px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1.08fr .92fr;
-      gap: 70px;
-      align-items: center;
-    }
-
-    .jnx-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 24px;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 2.8px;
-      text-transform: uppercase;
-      color: #6d28d9;
-    }
-
-    .jnx-eyebrow::before {
-      content: "";
-      width: 30px;
-      height: 2px;
-      background: #6d28d9;
-    }
-
-    .jnx-hero h1 {
-      max-width: 800px;
-      margin: 0;
-      font-size: clamp(54px, 8vw, 108px);
-      line-height: .86;
-      letter-spacing: -6px;
-      font-weight: 900;
-      text-transform: uppercase;
-    }
-
-    .jnx-hero h1 .light {
-      display: block;
-      font-weight: 400;
-      color: #383838;
-    }
-
-    .jnx-hero h1 .accent {
-      display: block;
-      color: #6d28d9;
-    }
-
-    .jnx-hero-text {
-      max-width: 570px;
-      margin: 32px 0 0;
-      color: #66625c;
-      font-size: 15px;
-      line-height: 1.75;
-    }
-
-    /* =========================
-       BUTTONS
-    ========================= */
-
-    .jnx-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 34px;
-    }
-
-    .jnx-button {
-      min-height: 52px;
-      padding: 0 25px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid #111111;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition:
-        transform .2s ease,
-        background .2s ease,
-        color .2s ease,
-        border-color .2s ease;
-    }
-
-    .jnx-button:hover {
-      transform: translateY(-3px);
-    }
-
-    .jnx-button.primary {
-      background: #111111;
-      color: #ffffff;
-    }
-
-    .jnx-button.primary:hover {
-      background: #6d28d9;
-      border-color: #6d28d9;
-    }
-
-    .jnx-button.secondary {
-      background: transparent;
-      color: #111111;
-    }
-
-    .jnx-button.secondary:hover {
-      background: #ffffff;
-    }
-
-    /* =========================
-       EDITORIAL FEATURE
-    ========================= */
-
-    .jnx-feature {
-      position: relative;
-      min-height: 530px;
-      overflow: hidden;
-      padding: 34px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: #171717;
-      color: #ffffff;
-      box-shadow: 16px 16px 0 #d9d5ce;
-    }
-
-    .jnx-feature::before {
-      content: "JNX";
-      position: absolute;
-      right: -25px;
-      top: 75px;
-      font-size: 180px;
-      line-height: .8;
-      font-weight: 900;
-      letter-spacing: -15px;
-      color: #252525;
-      pointer-events: none;
-    }
-
-    .jnx-feature::after {
-      content: "";
-      position: absolute;
-      right: 34px;
-      top: 34px;
-      width: 14px;
-      height: 14px;
-      background: #8b2635;
-      border-radius: 50%;
-    }
-
-    .jnx-feature-top,
-    .jnx-feature-bottom {
-      position: relative;
-      z-index: 2;
-    }
-
-    .jnx-feature-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-    }
-
-    .jnx-feature-label {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: #bdbdbd;
-    }
-
-    .jnx-feature-mark {
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      color: #c4b5fd;
-    }
-
-    .jnx-feature-line {
-      width: 55px;
-      height: 2px;
-      margin-bottom: 24px;
-      background: #6d28d9;
-    }
-
-    .jnx-feature-bottom h2 {
-      margin: 0;
-      font-size: clamp(50px, 6vw, 82px);
-      line-height: .82;
-      letter-spacing: -4px;
-      text-transform: uppercase;
-    }
-
-    .jnx-feature-bottom h2 span {
-      color: #c4b5fd;
-    }
-
-    .jnx-feature-bottom p {
-      max-width: 390px;
-      margin: 25px 0 0;
-      color: #b9b9b9;
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
-    /* =========================
-       BRAND STRIP
-    ========================= */
-
-    .jnx-strip {
-      border-top: 1px solid #d9d5ce;
-      border-bottom: 1px solid #d9d5ce;
-      background: #ffffff;
-    }
-
-    .jnx-strip-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 21px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .jnx-strip-item {
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #77736c;
-    }
-
-    .jnx-strip-item strong {
-      color: #111111;
-    }
-
-    .jnx-strip-dot {
-      width: 5px;
-      height: 5px;
-      flex: 0 0 auto;
-      border-radius: 50%;
-      background: #6d28d9;
-    }
-
-    /* =========================
-       IDENTITY SECTION
-    ========================= */
-
-    .jnx-identity {
-      padding: 95px 32px;
-      background: #ffffff;
-    }
-
-    .jnx-identity-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: .7fr 1.3fr;
-      gap: 90px;
-      align-items: start;
-    }
-
-    .jnx-section-label {
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: #6d28d9;
-    }
-
-    .jnx-identity h2 {
-      margin: 0;
-      max-width: 800px;
-      font-size: clamp(35px, 5vw, 65px);
-      line-height: .95;
-      letter-spacing: -3px;
-      text-transform: uppercase;
-    }
-
-    .jnx-identity h2 span {
-      color: #77736c;
-      font-weight: 400;
-    }
-
-    .jnx-identity-copy {
-      margin-top: 28px;
-      max-width: 650px;
-      color: #66625c;
-      font-size: 15px;
-      line-height: 1.8;
-    }
-
-    /* =========================
-       FOOTER
-    ========================= */
-
-    .jnx-footer {
-      background: #111111;
-      color: #ffffff;
-      padding: 32px;
-    }
-
-    .jnx-footer-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 25px;
-    }
-
-    .jnx-footer p {
-      margin: 0;
-      color: #999999;
-      font-size: 11px;
-      line-height: 1.6;
-    }
-
-    .jnx-footer strong {
-      color: #ffffff;
-    }
-
-    .jnx-footer-accent {
-      color: #c4b5fd !important;
-      font-weight: 700;
-    }
-
-    /* =========================
-       RESPONSIVE
-    ========================= */
-
-    @media (max-width: 900px) {
-      .jnx-nav-inner {
-        padding: 18px 22px;
-      }
-
-      .jnx-nav-links {
-        gap: 18px;
-      }
-
-      .jnx-hero {
-        padding: 55px 22px 70px;
-      }
-
-      .jnx-hero-content {
-        grid-template-columns: 1fr;
-        gap: 55px;
-      }
-
-      .jnx-feature {
-        min-height: 430px;
-      }
-
-      .jnx-identity {
-        padding: 70px 22px;
-      }
-
-      .jnx-identity-inner {
-        grid-template-columns: 1fr;
-        gap: 25px;
-      }
-
-      .jnx-strip-inner {
-        padding: 18px 22px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .jnx-nav-inner {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-      }
-
-      .jnx-nav-links {
-        width: 100%;
-        justify-content: space-between;
-        gap: 10px;
-        font-size: 10px;
-      }
-
-      .jnx-hero h1 {
-        letter-spacing: -4px;
-      }
-
-      .jnx-actions {
-        flex-direction: column;
-      }
-
-      .jnx-button {
-        width: 100%;
-      }
-
-      .jnx-feature {
-        min-height: 390px;
-        padding: 27px;
-        box-shadow: 9px 9px 0 #d9d5ce;
-      }
-
-      .jnx-feature::before {
-        font-size: 120px;
-      }
-
-      .jnx-strip-inner {
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .jnx-strip-dot {
-        display: none;
-      }
-
-      .jnx-footer {
-        padding: 28px 22px;
-      }
-
-      .jnx-footer-inner {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-  </style>
+  <link rel="icon" href="assets/jnx-logo.png">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
 
-  <!-- =========================
-       NAVIGATION
-  ========================== -->
+<header class="site-header">
+  <a class="brand brand-link" href="index.html" aria-label="Juris Nexum home">
+    <img src="assets/jnx-logo.png" alt="Juris Nexum logo">
+    <div>
+      <h1>Juris Nexum</h1>
+      <p>Official Merchandise</p>
+    </div>
+  </a>
 
-  <header class="jnx-nav">
-    <div class="jnx-nav-inner">
+  <nav class="header-actions" aria-label="Main navigation">
+    <a class="shop-now-link" href="#shop">Shop Now</a>
+    <a class="cart-button" href="checkout.html">
+      Cart <span id="cartCount">0</span>
+    </a>
+  </nav>
+</header>
 
-      <a href="index.html" class="jnx-brand">
-        <span class="jnx-brand-main">JURIS NEXUM</span>
-        <span class="jnx-brand-sub">OFFICIAL MERCHANDISE</span>
-      </a>
-
-      <nav class="jnx-nav-links">
-        <a href="index.html">Home</a>
-        <a href="shop.html">Collection</a>
-        <a href="track-order.html">Track Order</a>
-        <a href="checkout.html" class="jnx-cart-link">
-          <span class="jnx-cart-icon">🛒</span>
-          Cart
-          <span id="cartCount" class="jnx-cart-count">0</span>
+<main>
+  <section class="hero-dashboard">
+    <div class="hero-image-card">
+      <img
+        src="assets/jnx-merch-hero.png"
+        alt="Juris Nexum official merchandise featuring Lady Justice"
+      >
+      <div class="hero-action">
+        <a class="hero-button" href="#shop">
+          Shop Official Merchandise <span aria-hidden="true">→</span>
         </a>
-      </nav>
-
+      </div>
     </div>
-  </header>
+  </section>
 
+  <section class="brand-card-section" aria-label="Juris Nexum brand">
+    <div class="brand-card">
+      <div class="brand-card-corner corner-tl"></div>
+      <div class="brand-card-corner corner-tr"></div>
+      <div class="brand-card-corner corner-bl"></div>
+      <div class="brand-card-corner corner-br"></div>
 
-  <!-- =========================
-       HERO
-  ========================== -->
+      <div class="brand-card-content">
+        <img src="assets/jnx-logo.png" alt="Juris Nexum logo">
+        <div class="brand-card-name">JURIS NEXUM</div>
+        <div class="brand-card-rule"><span></span><b>EST. 2025</b><span></span></div>
+      </div>
+    </div>
+  </section>
 
-  <main>
+  <section class="quick-links">
+    <a class="quick-card" href="#shop">
+      <div class="quick-icon">▣</div>
+      <div>
+        <h3>Official Merchandise</h3>
+        <p>Browse shirts, bags, and other Juris Nexum items.</p>
+      </div>
+      <span class="quick-arrow">→</span>
+    </a>
 
-    <section class="jnx-hero">
+    <a class="quick-card" href="#tracking">
+      <div class="quick-icon">⌕</div>
+      <div>
+        <h3>Track Your Order</h3>
+        <p>Check your receipt and current order status.</p>
+      </div>
+      <span class="quick-arrow">→</span>
+    </a>
+  </section>
 
-      <div class="jnx-hero-content">
-
-        <div>
-
-          <div class="jnx-eyebrow">
-            Juris Nexum / Official Shop
-          </div>
-
-          <h1>
-            WEAR
-            <span class="light">THE IDENTITY</span>
-            <span class="accent">OF JURIS.</span>
-          </h1>
-
-          <p class="jnx-hero-text">
-            Official merchandise created for the Juris Nexum community.
-            Carry the identity, represent the connection, and wear
-            what brings us together.
-          </p>
-
-          <div class="jnx-actions">
-
-            <a
-              href="shop.html"
-              class="jnx-button primary"
-            >
-              Shop Collection
-            </a>
-
-            <a
-              href="track-order.html"
-              class="jnx-button secondary"
-            >
-              Track My Order
-            </a>
-
-          </div>
-
-        </div>
-
-
-        <!-- EDITORIAL FEATURE -->
-
-        <div class="jnx-feature">
-
-          <div class="jnx-feature-top">
-
-            <div class="jnx-feature-label">
-              Official / 2026
-            </div>
-
-            <div class="jnx-feature-mark">
-              JNX
-            </div>
-
-          </div>
-
-          <div class="jnx-feature-bottom">
-
-            <div class="jnx-feature-line"></div>
-
-            <h2>
-              JURIS<br>
-              <span>NEXUM</span>
-            </h2>
-
-            <p>
-              Designed for students who represent Juris Nexum
-              beyond the classroom — through identity, connection,
-              and the pursuit of excellence in Legal Management.
-            </p>
-
-          </div>
-
-        </div>
-
+  <section id="tracking" class="shop-section tracking-section">
+    <div class="card tracking-card">
+      <div>
+        <p class="eyebrow">ORDER TRACKING</p>
+        <h2>Already placed an order?</h2>
+        <p class="muted">Enter your order number to view your receipt and current status.</p>
       </div>
 
-    </section>
+      <form id="trackForm" class="tracking-form">
+        <input id="trackOrderNo" placeholder="e.g. JNX-2026-00001" autocomplete="off" required>
+        <button class="primary-button" type="submit">Track Order</button>
+      </form>
+    </div>
+  </section>
 
-
-    <!-- =========================
-         BRAND STRIP
-    ========================== -->
-
-    <section class="jnx-strip">
-
-      <div class="jnx-strip-inner">
-
-        <div class="jnx-strip-item">
-          <strong>Identity</strong>
-        </div>
-
-        <div class="jnx-strip-dot"></div>
-
-        <div class="jnx-strip-item">
-          Connection
-        </div>
-
-        <div class="jnx-strip-dot"></div>
-
-        <div class="jnx-strip-item">
-          Jurisprudence
-        </div>
-
-        <div class="jnx-strip-dot"></div>
-
-        <div class="jnx-strip-item">
-          Community
-        </div>
-
-        <div class="jnx-strip-dot"></div>
-
-        <div class="jnx-strip-item">
-          <strong>Juris Nexum</strong>
-        </div>
-
+  <section id="shop" class="shop-section shop-products-section">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">SHOP</p>
+        <h2>Available Merchandise</h2>
+        <p class="muted">Wear the spirit of Juris Nexum.</p>
       </div>
-
-    </section>
-
-
-    <!-- =========================
-         IDENTITY SECTION
-    ========================== -->
-
-    <section class="jnx-identity">
-
-      <div class="jnx-identity-inner">
-
-        <div>
-          <div class="jnx-section-label">
-            The Identity
-          </div>
-        </div>
-
-        <div>
-
-          <h2>
-            MORE THAN<br>
-            <span>MERCHANDISE.</span>
-          </h2>
-
-          <p class="jnx-identity-copy">
-            Juris Nexum merchandise is a representation of the
-            community we build together. Every piece carries a
-            connection to the organization and the people who
-            make it what it is.
-          </p>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- =========================
-       FOOTER
-  ========================== -->
-
-  <footer class="jnx-footer">
-
-    <div class="jnx-footer-inner">
-
-      <p>
-        © 2026 <strong>Juris Nexum</strong>.
-        All rights reserved.
-      </p>
-
-      <p class="jnx-footer-accent">
-        OFFICIAL MERCHANDISE SHOP
-      </p>
-
+      <select id="categoryFilter" aria-label="Filter products">
+        <option value="all">All Categories</option>
+      </select>
     </div>
 
-  </footer>
+    <div id="productGrid" class="product-grid"></div>
+  </section>
+</main>
 
+<footer>
+  <div class="footer-brand">
+    <img src="assets/jnx-logo.png" alt="Juris Nexum logo">
+    <strong>JURIS NEXUM</strong>
+  </div>
+  <p>© 2026 Juris Nexum. Official Merchandise Shop.</p>
+</footer>
 
+<script src="js/config.js"></script>
+<script src="js/shop.js"></script>
 <script>
-(function () {
-  const CART_KEY = "jnx_merch_cart_v1";
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("trackForm");
 
-  function updateHomeCartCount() {
-    const el = document.getElementById("cartCount");
-    if (!el) return;
+  form.addEventListener("submit", event => {
+    event.preventDefault();
 
-    try {
-      const cart = JSON.parse(
-        localStorage.getItem(CART_KEY) || "[]"
-      );
+    const orderNo = document.getElementById("trackOrderNo").value.trim();
 
-      const count = cart.reduce(
-        (total, item) => total + Number(item.quantity || 0),
-        0
-      );
-
-      el.textContent = count;
-    } catch (error) {
-      el.textContent = "0";
+    if (orderNo) {
+      location.href = "order.html?orderNo=" + encodeURIComponent(orderNo);
     }
-  }
-
-  updateHomeCartCount();
-
-  window.addEventListener("storage", updateHomeCartCount);
-
-  window.addEventListener("pageshow", updateHomeCartCount);
-})();
+  });
+});
 </script>
-
 </body>
 </html>
