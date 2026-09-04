@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Track Order | Juris Nexum</title>
+
+  <meta
+    name="description"
+    content="Track your Juris Nexum merchandise order."
+  >
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f7f7f7;
+      color: #171717;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    /* =========================
+       NAVIGATION
+    ========================= */
+
+    .jnx-nav {
+      width: 100%;
+      background: #ffffff;
+      border-bottom: 1px solid #e7e7e7;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .jnx-nav-inner {
+      max-width: 1200px;
+      margin: auto;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    .jnx-brand {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .jnx-brand span {
+      display: block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      margin-top: 3px;
+    }
+
+    .jnx-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .jnx-nav-links a {
+      transition: opacity 0.2s ease;
+    }
+
+    .jnx-nav-links a:hover {
+      opacity: 0.55;
+    }
+
+    .jnx-nav-links .active {
+      border-bottom: 1px solid #171717;
+      padding-bottom: 4px;
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    .jnx-page-header {
+      background: #ffffff;
+      border-bottom: 1px solid #e7e7e7;
+      padding: 75px 25px 65px;
+    }
+
+    .jnx-page-header-inner {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .jnx-eyebrow {
+      margin-bottom: 18px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .jnx-page-header h1 {
+      margin: 0;
+      font-size: clamp(45px, 7vw, 82px);
+      line-height: 0.95;
+      letter-spacing: -4px;
+    }
+
+    .jnx-page-header p {
+      max-width: 620px;
+      margin: 25px 0 0;
+      color: #686868;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* =========================
+       TRACK AREA
+    ========================= */
+
+    .jnx-track {
+      max-width: 900px;
+      margin: auto;
+      padding: 65px 25px 90px;
+    }
+
+    .jnx-search-card {
+      background: #ffffff;
+      border: 1px solid #e4e4e4;
+      padding: 35px;
+    }
+
+    .jnx-search-label {
+      display: block;
+      margin-bottom: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .jnx-search-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .jnx-search-row input {
+      flex: 1;
+      min-width: 0;
+      height: 52px;
+      padding: 0 16px;
+      border: 1px solid #cccccc;
+      background: #ffffff;
+      color: #171717;
+      outline: none;
+    }
+
+    .jnx-search-row input:focus {
+      border-color: #171717;
+    }
+
+    .jnx-search-row button {
+      min-width: 150px;
+      height: 52px;
+      border: 1px solid #171717;
+      background: #171717;
+      color: #ffffff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 0.2s ease;
+    }
+
+    .jnx-search-row button:hover {
+      background: #333333;
+    }
+
+    .jnx-search-help {
+      margin: 12px 0 0;
+      color: #777777;
+      font-size: 12px;
+    }
+
+    /* =========================
+       STATUS
+    ========================= */
+
+    .jnx-status {
+      display: none;
+      margin-top: 25px;
+      padding: 16px 18px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .jnx-status.show {
+      display: block;
+    }
+
+    .jnx-status.loading {
+      background: #eeeeee;
+      color: #555555;
+    }
+
+    .jnx-status.error {
+      background: #f8e8e8;
+      color: #8b2222;
+      border: 1px solid #edcaca;
+    }
+
+    /* =========================
+       ORDER RESULT
+    ========================= */
+
+    .jnx-order {
+      display: none;
+      margin-top: 25px;
+    }
+
+    .jnx-order.show {
+      display: block;
+    }
+
+    .jnx-order-header {
+      background: #171717;
+      color: #ffffff;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .jnx-order-label {
+      color: #aaaaaa;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .jnx-order-number {
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .jnx-order-status {
+      padding: 10px 15px;
+      background: #ffffff;
+      color: #171717;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* =========================
+       ORDER INFO
+    ========================= */
+
+    .jnx-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      background: #ffffff;
+      border: 1px solid #e3e3e3;
+      border-top: 0;
+    }
+
+    .jnx-info {
+      padding: 22px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .jnx-info:nth-child(odd) {
+      border-right: 1px solid #e8e8e8;
+    }
+
+    .jnx-info-label {
+      margin-bottom: 7px;
+      color: #888888;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .jnx-info-value {
+      font-size: 14px;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    /* =========================
+       ITEMS
+    ========================= */
+
+    .jnx-items {
+      margin-top: 25px;
+      background: #ffffff;
+      border: 1px solid #e3e3e3;
+    }
+
+    .jnx-items-title {
+      padding: 20px 22px;
+      border-bottom: 1px solid #e3e3e3;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .jnx-item {
+      padding: 20px 22px;
+      border-bottom: 1px solid #eeeeee;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .jnx-item:last-child {
+      border-bottom: 0;
+    }
+
+    .jnx-item-name {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .jnx-item-variant {
+      margin-top: 5px;
+      color: #777777;
+      font-size: 12px;
+    }
+
+    .jnx-item-right {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .jnx-item-quantity {
+      color: #777777;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .jnx-item-subtotal {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    /* =========================
+       TOTAL
+    ========================= */
+
+    .jnx-total {
+      margin-top: 25px;
+      padding: 25px;
+      background: #171717;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .jnx-total-label {
+      color: #aaaaaa;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .jnx-total-amount {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    /* =========================
+       MEMBER INFO
+    ========================= */
+
+    .jnx-member {
+      margin-top: 25px;
+      padding: 22px;
+      background: #ffffff;
+      border: 1px solid #e3e3e3;
+    }
+
+    .jnx-member-title {
+      margin-bottom: 12px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .jnx-member-details {
+      color: #666666;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    .jnx-footer {
+      background: #171717;
+      color: #ffffff;
+      padding: 45px 25px;
+    }
+
+    .jnx-footer-inner {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+    }
+
+    .jnx-footer-brand {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .jnx-footer p {
+      margin: 6px 0 0;
+      color: #999999;
+      font-size: 12px;
+    }
+
+    .jnx-footer-links {
+      display: flex;
+      gap: 22px;
+      font-size: 12px;
+    }
+
+    .jnx-footer-links a:hover {
+      opacity: 0.6;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 650px) {
+
+      .jnx-nav-inner {
+        padding: 15px 18px;
+        align-items: flex-start;
+      }
+
+      .jnx-nav-links {
+        gap: 13px;
+        font-size: 12px;
+      }
+
+      .jnx-brand {
+        font-size: 17px;
+      }
+
+      .jnx-brand span {
+        font-size: 8px;
+      }
+
+      .jnx-page-header {
+        padding: 55px 20px 50px;
+      }
+
+      .jnx-page-header h1 {
+        letter-spacing: -2px;
+      }
+
+      .jnx-track {
+        padding: 45px 18px 65px;
+      }
+
+      .jnx-search-card {
+        padding: 25px 20px;
+      }
+
+      .jnx-search-row {
+        flex-direction: column;
+      }
+
+      .jnx-search-row button {
+        width: 100%;
+      }
+
+      .jnx-order-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 25px 20px;
+      }
+
+      .jnx-info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .jnx-info:nth-child(odd) {
+        border-right: 0;
+      }
+
+      .jnx-item {
+        flex-direction: column;
+      }
+
+      .jnx-item-right {
+        text-align: left;
+      }
+
+      .jnx-total {
+        padding: 20px;
+      }
+
+      .jnx-footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       NAVIGATION
+  ========================= -->
+
+  <header class="jnx-nav">
+
+    <div class="jnx-nav-inner">
+
+      <a href="index.html" class="jnx-brand">
+        JURIS NEXUM
+        <span>OFFICIAL MERCHANDISE</span>
+      </a>
+
+      <nav class="jnx-nav-links">
+        <a href="index.html">Home</a>
+        <a href="shop.html">Collection</a>
+        <a href="track-order.html" class="active">
+          Track Order
+        </a>
+      </nav>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================
+       PAGE HEADER
+  ========================= -->
+
+  <section class="jnx-page-header">
+
+    <div class="jnx-page-header-inner">
+
+      <div class="jnx-eyebrow">
+        JURIS NEXUM / ORDER TRACKING
+      </div>
+
+      <h1>
+        TRACK<br>
+        YOUR ORDER.
+      </h1>
+
+      <p>
+        Enter your JNX order number below to view your
+        order details, payment status, and current order status.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       TRACKING
+  ========================= -->
+
+  <main class="jnx-track">
+
+    <section class="jnx-search-card">
+
+      <label
+        class="jnx-search-label"
+        for="orderNumber"
+      >
+        Order Number
+      </label>
+
+      <div class="jnx-search-row">
+
+        <input
+          id="orderNumber"
+          type="text"
+          placeholder="e.g. JNX-000001"
+          autocomplete="off"
+          spellcheck="false"
+        >
+
+        <button
+          id="trackButton"
+          type="button"
+        >
+          TRACK ORDER
+        </button>
+
+      </div>
+
+      <p class="jnx-search-help">
+        Your order number can be found on your JNX order receipt.
+      </p>
+
+      <div
+        id="statusMessage"
+        class="jnx-status"
+      ></div>
+
+    </section>
+
+
+    <!-- =========================
+         ORDER RESULT
+    ========================= -->
+
+    <section
+      id="orderResult"
+      class="jnx-order"
+    >
+
+      <div class="jnx-order-header">
+
+        <div>
+          <div class="jnx-order-label">
+            Order Number
+          </div>
+
+          <div
+            id="resultOrderNumber"
+            class="jnx-order-number"
+          >
+          </div>
+        </div>
+
+        <div
+          id="resultOrderStatus"
+          class="jnx-order-status"
+        >
+          Pending
+        </div>
+
+      </div>
+
+
+      <!-- ORDER INFORMATION -->
+
+      <div class="jnx-info-grid">
+
+        <div class="jnx-info">
+          <div class="jnx-info-label">
+            Customer
+          </div>
+
+          <div
+            id="resultName"
+            class="jnx-info-value"
+          >
+          </div>
+        </div>
+
+        <div class="jnx-info">
+          <div class="jnx-info-label">
+            Date Ordered
+          </div>
+
+          <div
+            id="resultDate"
+            class="jnx-info-value"
+          >
+          </div>
+        </div>
+
+        <div class="jnx-info">
+          <div class="jnx-info-label">
+            Payment Method
+          </div>
+
+          <div
+            id="resultPaymentMethod"
+            class="jnx-info-value"
+          >
+          </div>
+        </div>
+
+        <div class="jnx-info">
+          <div class="jnx-info-label">
+            Payment Status
+          </div>
+
+          <div
+            id="resultPaymentStatus"
+            class="jnx-info-value"
+          >
+          </div>
+        </div>
+
+        <div class="jnx-info">
+          <div class="jnx-info-label">
+            Program
+          </div>
+
+          <div
+            id="resultProgram"
+            class="jnx-info-value"
+          >
+          </div>
+        </div>
+
+        <div class="jnx-info">
+          <div class="jnx-info-label">
+            Year / Section
+          </div>
+
+          <div
+            id="resultYearSection"
+            class="jnx-info-value"
+          >
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- ORDER ITEMS -->
+
+      <section class="jnx-items">
+
+        <div class="jnx-items-title">
+          Items Ordered
+        </div>
+
+        <div id="resultItems"></div>
+
+      </section>
+
+
+      <!-- TOTAL -->
+
+      <div class="jnx-total">
+
+        <div class="jnx-total-label">
+          Order Total
+        </div>
+
+        <div
+          id="resultTotal"
+          class="jnx-total-amount"
+        >
+          ₱0.00
+        </div>
+
+      </div>
+
+
+      <!-- MEMBER -->
+
+      <section
+        id="memberInfo"
+        class="jnx-member"
+        style="display:none;"
+      >
+
+        <div class="jnx-member-title">
+          JNX Member Pricing
+        </div>
+
+        <div
+          id="memberDetails"
+          class="jnx-member-details"
+        >
+        </div>
+
+      </section>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       FOOTER
+  ========================= -->
+
+  <footer class="jnx-footer">
+
+    <div class="jnx-footer-inner">
+
+      <div>
+
+        <div class="jnx-footer-brand">
+          JURIS NEXUM
+        </div>
+
+        <p>
+          Official Merchandise Shop
+        </p>
+
+      </div>
+
+      <div class="jnx-footer-links">
+
+        <a href="index.html">
+          Home
+        </a>
+
+        <a href="shop.html">
+          Collection
+        </a>
+
+        <a href="track-order.html">
+          Track Order
+        </a>
+
+      </div>
+
+    </div>
+
+  </footer>
+
+
+  <!-- =========================
+       TRACKING JAVASCRIPT
+  ========================= -->
+
+  <script src="js/config.js"></script>
+
+  <script>
+
+    const orderInput =
+      document.getElementById("orderNumber");
+
+    const trackButton =
+      document.getElementById("trackButton");
+
+    const statusMessage =
+      document.getElementById("statusMessage");
+
+    const orderResult =
+      document.getElementById("orderResult");
+
+
+    function peso(amount) {
+
+      return new Intl.NumberFormat(
+        "en-PH",
+        {
+          style: "currency",
+          currency: "PHP"
+        }
+      ).format(
+        Number(amount) || 0
+      );
+
+    }
+
+
+    function escapeHtml(value) {
+
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    }
+
+
+    function showStatus(message, type) {
+
+      statusMessage.textContent =
+        message;
+
+      statusMessage.className =
+        `jnx-status show ${type}`;
+
+    }
+
+
+    function hideStatus() {
+
+      statusMessage.className =
+        "jnx-status";
+
+      statusMessage.textContent =
+        "";
+
+    }
+
+
+    function setText(id, value) {
+
+      const element =
+        document.getElementById(id);
+
+      if (element) {
+        element.textContent =
+          value || "—";
+      }
+
+    }
+
+
+    function renderOrder(order) {
+
+      setText(
+        "resultOrderNumber",
+        order.orderNumber
+      );
+
+      setText(
+        "resultOrderStatus",
+        order.orderStatus || "Pending"
+      );
+
+      setText(
+        "resultName",
+        order.fullName
+      );
+
+      setText(
+        "resultDate",
+        order.timestamp
+      );
+
+      setText(
+        "resultPaymentMethod",
+        order.paymentMethod
+      );
+
+      setText(
+        "resultPaymentStatus",
+        order.paymentStatus
+      );
+
+      setText(
+        "resultProgram",
+        order.program
+      );
+
+      setText(
+        "resultYearSection",
+        `${order.yearLevel || "—"} / ${order.section || "—"}`
+      );
+
+
+      /* =========================
+         ITEMS
+      ========================= */
+
+      const itemsBox =
+        document.getElementById(
+          "resultItems"
+        );
+
+      const items =
+        Array.isArray(order.items)
+          ? order.items
+          : [];
+
+      if (!items.length) {
+
+        itemsBox.innerHTML = `
+          <div class="jnx-item">
+            <div class="jnx-item-name">
+              No item information available.
+            </div>
+          </div>
+        `;
+
+      } else {
+
+        itemsBox.innerHTML =
+          items.map(item => {
+
+            const variant =
+              item.variant
+                ? `Variant: ${escapeHtml(item.variant)}`
+                : "";
+
+            return `
+              <div class="jnx-item">
+
+                <div>
+
+                  <div class="jnx-item-name">
+                    ${escapeHtml(item.name)}
+                  </div>
+
+                  <div class="jnx-item-variant">
+                    ${variant}
+                  </div>
+
+                </div>
+
+                <div class="jnx-item-right">
+
+                  <div class="jnx-item-quantity">
+                    ${Number(item.quantity) || 0}
+                    ×
+                    ${peso(item.unitPrice)}
+                  </div>
+
+                  <div class="jnx-item-subtotal">
+                    ${peso(item.subtotal)}
+                  </div>
+
+                </div>
+
+              </div>
+            `;
+
+          }).join("");
+
+      }
+
+
+      setText(
+        "resultTotal",
+        peso(order.totalAmount)
+      );
+
+
+      /* =========================
+         MEMBER INFORMATION
+      ========================= */
+
+      const memberInfo =
+        document.getElementById(
+          "memberInfo"
+        );
+
+      const memberDetails =
+        document.getElementById(
+          "memberDetails"
+        );
+
+      if (
+        order.memberId ||
+        order.memberName ||
+        order.pricingType === "JNX Member"
+      ) {
+
+        memberInfo.style.display =
+          "block";
+
+        memberDetails.innerHTML = `
+          <strong>
+            ${escapeHtml(
+              order.pricingType || "JNX Member"
+            )}
+          </strong>
+          <br>
+          ${escapeHtml(
+            order.memberName || order.fullName
+          )}
+          ${
+            order.memberId
+              ? `<br>Member ID: ${escapeHtml(order.memberId)}`
+              : ""
+          }
+        `;
+
+      } else {
+
+        memberInfo.style.display =
+          "none";
+
+        memberDetails.innerHTML =
+          "";
+
+      }
+
+
+      orderResult.classList.add(
+        "show"
+      );
+
+    }
+
+
+    async function trackOrder() {
+
+      const orderNumber =
+        orderInput.value.trim();
+
+      orderResult.classList.remove(
+        "show"
+      );
+
+      hideStatus();
+
+
+      if (!orderNumber) {
+
+        showStatus(
+          "Please enter your order number.",
+          "error"
+        );
+
+        orderInput.focus();
+
+        return;
+
+      }
+
+
+      if (
+        typeof API_URL === "undefined" ||
+        !API_URL ||
+        API_URL.includes("PASTE_YOUR")
+      ) {
+
+        showStatus(
+          "The order tracking service is not configured.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      trackButton.disabled =
+        true;
+
+      trackButton.textContent =
+        "SEARCHING...";
+
+      showStatus(
+        "Looking up your order...",
+        "loading"
+      );
+
+
+      try {
+
+        const response =
+          await fetch(
+            `${API_URL}?action=order&orderNo=${encodeURIComponent(orderNumber)}&t=${Date.now()}`,
+            {
+              cache: "no-store"
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!data.ok) {
+
+          throw new Error(
+            data.error ||
+            "Order not found."
+          );
+
+        }
+
+
+        hideStatus();
+
+        renderOrder(
+          data.order
+        );
+
+
+        orderResult.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
+
+      } catch (error) {
+
+        console.error(
+          "Order tracking error:",
+          error
+        );
+
+        showStatus(
+          error.message ||
+          "Unable to find the order.",
+          "error"
+        );
+
+      } finally {
+
+        trackButton.disabled =
+          false;
+
+        trackButton.textContent =
+          "TRACK ORDER";
+
+      }
+
+    }
+
+
+    trackButton.addEventListener(
+      "click",
+      trackOrder
+    );
+
+
+    orderInput.addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key === "Enter"
+        ) {
+
+          event.preventDefault();
+
+          trackOrder();
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
