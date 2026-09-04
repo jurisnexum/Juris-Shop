@@ -298,8 +298,11 @@ function normalizeMemberName_(value) {
 }
 
 function verifyMember_(data) {
-  const memberId = String(data.memberId || "").trim();
-  const buyerName = String(data.fullName || "").trim();
+  const memberId =
+    String(data.memberId || "").trim();
+
+  const buyerName =
+    String(data.fullName || "").trim();
 
   if (!memberId) {
     return {
@@ -315,7 +318,8 @@ function verifyMember_(data) {
     };
   }
 
-  const member = findMember_(memberId);
+  const member =
+    findMember_(memberId);
 
   if (!member) {
     return {
@@ -331,13 +335,29 @@ function verifyMember_(data) {
     };
   }
 
-  const enteredName = normalizeMemberName_(buyerName);
-  const registeredName = normalizeMemberName_(member.fullName);
+  /*
+   * MEMBER VERIFICATION
+   *
+   * Only Member ID and Full Name are checked.
+   * Program, Year Level, and Section are NOT checked.
+   *
+   * Name comparison:
+   * - ignores capitalization
+   * - ignores extra spaces
+   * - ignores leading/trailing spaces
+   * - ignores accents/diacritics
+   */
+  const enteredName =
+    normalizeMemberName_(buyerName);
+
+  const registeredName =
+    normalizeMemberName_(member.fullName);
 
   if (enteredName !== registeredName) {
     return {
       ok: false,
-      error: "The name does not match the name registered to this Member ID."
+      error:
+        "The name does not match the name registered to this Member ID."
     };
   }
 
@@ -424,21 +444,6 @@ function createOrder_(data) {
     if (member) {
       const buyerName =
         String(data.fullName || "").trim();
-
-      const buyerProgram =
-        String(data.program || "").trim();
-
-      const buyerYearLevel =
-        String(data.yearLevel || "").trim();
-
-      const buyerSection =
-        String(data.section || "").trim();
-
-      const normalizeName = value =>
-        String(value || "")
-          .trim()
-          .replace(/\s+/g, " ")
-          .toLowerCase();
 
       const identityMatches =
         normalizeMemberName_(buyerName) ===
