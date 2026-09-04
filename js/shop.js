@@ -318,6 +318,9 @@ function addToCart(productId, variant) {
 
   saveCart(cart);
 
+  updateCartCount();
+  animateAddToCart(productId);
+
   showCartFeedback(
     `${product.name} (${variant}) added to cart at ${peso(pricing.regularPrice)}.`
   );
@@ -717,6 +720,100 @@ async function loadProducts() {
 
     PRODUCTS =
       FALLBACK_PRODUCTS;
+  }
+}
+
+
+function animateAddToCart(productId) {
+  const card = document.querySelector(
+    `.modern-product-card:has(#add-${productId})`
+  );
+
+  const button = document.getElementById(`add-${productId}`);
+  const cartCount = document.getElementById("cartCount");
+
+  if (button) {
+    button.classList.remove("cart-button-smash");
+    void button.offsetWidth;
+    button.classList.add("cart-button-smash");
+
+    setTimeout(() => {
+      button.classList.remove("cart-button-smash");
+    }, 450);
+  }
+
+  if (card) {
+    const image = card.querySelector(".modern-product-image");
+
+    if (image) {
+      const rect = image.getBoundingClientRect();
+      const flyingImage = image.cloneNode(true);
+
+      flyingImage.classList.add("flying-cart-image");
+
+      flyingImage.style.position = "fixed";
+      flyingImage.style.left = `${rect.left}px`;
+      flyingImage.style.top = `${rect.top}px`;
+      flyingImage.style.width = `${rect.width}px`;
+      flyingImage.style.height = `${rect.height}px`;
+
+      document.body.appendChild(flyingImage);
+
+      const cartTarget =
+        document.querySelector("#cartCount") ||
+        document.querySelector(".cart-link") ||
+        document.querySelector("[href*='checkout']");
+
+      if (cartTarget) {
+        const targetRect = cartTarget.getBoundingClientRect();
+
+        const targetX =
+          targetRect.left + targetRect.width / 2;
+
+        const targetY =
+          targetRect.top + targetRect.height / 2;
+
+        const startX =
+          rect.left + rect.width / 2;
+
+        const startY =
+          rect.top + rect.height / 2;
+
+        flyingImage.style.setProperty(
+          "--fly-x",
+          `${targetX - startX}px`
+        );
+
+        flyingImage.style.setProperty(
+          "--fly-y",
+          `${targetY - startY}px`
+        );
+
+        requestAnimationFrame(() => {
+          flyingImage.classList.add(
+            "flying-cart-image-active"
+          );
+        });
+
+        setTimeout(() => {
+          flyingImage.remove();
+        }, 700);
+      } else {
+        flyingImage.remove();
+      }
+    }
+  }
+
+  if (cartCount) {
+    cartCount.classList.remove("cart-count-pop");
+
+    void cartCount.offsetWidth;
+
+    cartCount.classList.add("cart-count-pop");
+
+    setTimeout(() => {
+      cartCount.classList.remove("cart-count-pop");
+    }, 500);
   }
 }
 

@@ -556,8 +556,33 @@ async function submitOrder(event) {
   submitButton.disabled =
     true;
 
+  submitButton.classList.add(
+    "order-smash"
+  );
+
+  const checkoutPage =
+    document.querySelector(
+      ".checkout-page"
+    );
+
+  if (checkoutPage) {
+    checkoutPage.classList.remove(
+      "order-impact"
+    );
+
+    void checkoutPage.offsetWidth;
+
+    checkoutPage.classList.add(
+      "order-impact"
+    );
+  }
+
+  submitButton.classList.add(
+    "order-processing"
+  );
+
   submitButton.textContent =
-    "Submitting...";
+    "Processing Order...";
 
   try {
     const proofFile =
@@ -755,6 +780,11 @@ async function submitOrder(event) {
 
     submitButton.disabled =
       false;
+
+    submitButton.classList.remove(
+      "order-smash",
+      "order-processing"
+    );
 
     submitButton.textContent =
       "Place Order";
