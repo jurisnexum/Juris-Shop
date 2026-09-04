@@ -157,5 +157,23 @@
 
 <script src="js/config.js"></script>
 <script src="js/checkout.js"></script>
+<script>
+document.addEventListener("click", function (e) {
+  const link = e.target.closest("a");
+
+  if (!link) return;
+
+  const text = (link.textContent || "").trim().toLowerCase();
+
+  if (
+    text.includes("continue shopping") ||
+    text.includes("return to shop")
+  ) {
+    e.preventDefault();
+    window.location.href = "shop.html";
+  }
+});
+</script>
+
 </body>
 </html>
