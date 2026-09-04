@@ -4,280 +4,538 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Juris Nexum | Official Merchandise</title>
+  <title>Juris Nexum | Official Merchandise Shop</title>
 
-  <link rel="icon" href="assets/jnx-logo.png">
+  <meta
+    name="description"
+    content="Official Juris Nexum merchandise shop."
+  >
+
   <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f7f7f7;
+      color: #171717;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* =========================
+       NAVIGATION
+    ========================= */
+
+    .jnx-nav {
+      width: 100%;
+      background: #ffffff;
+      border-bottom: 1px solid #e7e7e7;
+      position: relative;
+      z-index: 10;
+    }
+
+    .jnx-nav-inner {
+      max-width: 1200px;
+      margin: auto;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    .jnx-brand {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .jnx-brand span {
+      display: block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      margin-top: 3px;
+    }
+
+    .jnx-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .jnx-nav-links a {
+      transition: opacity 0.2s ease;
+    }
+
+    .jnx-nav-links a:hover {
+      opacity: 0.55;
+    }
+
+    /* =========================
+       HERO
+    ========================= */
+
+    .jnx-hero {
+      min-height: calc(100vh - 80px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 70px 25px;
+      background: #ffffff;
+    }
+
+    .jnx-hero-content {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 70px;
+      align-items: center;
+    }
+
+    .jnx-eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .jnx-hero h1 {
+      margin: 0;
+      font-size: clamp(48px, 7vw, 88px);
+      line-height: 0.95;
+      letter-spacing: -4px;
+    }
+
+    .jnx-hero h1 span {
+      display: block;
+      font-weight: 400;
+    }
+
+    .jnx-hero-text {
+      max-width: 560px;
+      margin-top: 28px;
+      color: #626262;
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .jnx-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 35px;
+    }
+
+    .jnx-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 0 26px;
+      border: 1px solid #171717;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .jnx-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .jnx-button.primary {
+      background: #171717;
+      color: #ffffff;
+    }
+
+    .jnx-button.primary:hover {
+      background: #333333;
+    }
+
+    .jnx-button.secondary {
+      background: #ffffff;
+      color: #171717;
+    }
+
+    .jnx-button.secondary:hover {
+      background: #f0f0f0;
+    }
+
+    /* =========================
+       FEATURE PANEL
+    ========================= */
+
+    .jnx-feature {
+      min-height: 480px;
+      background: #171717;
+      color: #ffffff;
+      padding: 45px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .jnx-feature-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .jnx-feature-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.65;
+    }
+
+    .jnx-feature-mark {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .jnx-feature-bottom h2 {
+      margin: 0 0 15px;
+      font-size: 34px;
+      line-height: 1.05;
+    }
+
+    .jnx-feature-bottom p {
+      margin: 0;
+      max-width: 380px;
+      color: #c5c5c5;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    /* =========================
+       QUICK ACCESS
+    ========================= */
+
+    .jnx-quick {
+      padding: 80px 25px;
+      background: #f7f7f7;
+    }
+
+    .jnx-quick-inner {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .jnx-section-heading {
+      margin-bottom: 35px;
+    }
+
+    .jnx-section-heading p {
+      margin: 0 0 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .jnx-section-heading h2 {
+      margin: 0;
+      font-size: 38px;
+      letter-spacing: -1px;
+    }
+
+    .jnx-quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .jnx-quick-card {
+      background: #ffffff;
+      border: 1px solid #e4e4e4;
+      padding: 35px;
+      min-height: 230px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+    }
+
+    .jnx-quick-card:hover {
+      transform: translateY(-4px);
+      border-color: #171717;
+    }
+
+    .jnx-card-number {
+      font-size: 12px;
+      font-weight: 700;
+      color: #888888;
+    }
+
+    .jnx-quick-card h3 {
+      margin: 35px 0 8px;
+      font-size: 24px;
+    }
+
+    .jnx-quick-card p {
+      margin: 0;
+      color: #666666;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .jnx-card-link {
+      margin-top: 25px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    .jnx-footer {
+      background: #171717;
+      color: #ffffff;
+      padding: 35px 25px;
+    }
+
+    .jnx-footer-inner {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 25px;
+      align-items: center;
+    }
+
+    .jnx-footer p {
+      margin: 0;
+      font-size: 12px;
+      color: #a9a9a9;
+    }
+
+    .jnx-footer strong {
+      color: #ffffff;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 850px) {
+      .jnx-nav-inner {
+        padding: 16px 20px;
+      }
+
+      .jnx-nav-links {
+        gap: 14px;
+        font-size: 12px;
+      }
+
+      .jnx-hero {
+        min-height: auto;
+        padding: 55px 20px;
+      }
+
+      .jnx-hero-content {
+        grid-template-columns: 1fr;
+        gap: 45px;
+      }
+
+      .jnx-hero h1 {
+        font-size: clamp(48px, 15vw, 76px);
+      }
+
+      .jnx-feature {
+        min-height: 380px;
+        padding: 30px;
+      }
+
+      .jnx-quick {
+        padding: 55px 20px;
+      }
+
+      .jnx-quick-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .jnx-footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .jnx-nav-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .jnx-nav-links {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .jnx-actions {
+        flex-direction: column;
+      }
+
+      .jnx-button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
-<body class="shop-home">
+<body>
 
-<header class="store-header">
-  <div class="store-header-inner">
+  <!-- =========================
+       NAVIGATION
+  ========================== -->
 
-    <a href="index.html" class="store-brand">
-      <img src="assets/jnx-logo.png" alt="Juris Nexum logo">
+  <header class="jnx-nav">
+    <div class="jnx-nav-inner">
 
-      <div>
-        <strong>JURIS NEXUM</strong>
+      <a href="index.html" class="jnx-brand">
+        JURIS NEXUM
         <span>OFFICIAL MERCHANDISE</span>
-      </div>
-    </a>
+      </a>
 
-    <nav class="store-nav">
-      <a href="#shop">Shop</a>
-      <a href="#track">Track Order</a>
-    </nav>
+      <nav class="jnx-nav-links">
+        <a href="index.html">Home</a>
+        <a href="shop.html">Collection</a>
+        <a href="track-order.html">Track Order</a>
+      </nav>
 
-    <a href="checkout.html" class="store-cart">
-      <span class="cart-icon">🛒</span>
-      <span>Cart</span>
-      <b id="cartCount">0</b>
-    </a>
-
-  </div>
-</header>
+    </div>
+  </header>
 
 
-<main>
+  <!-- =========================
+       HERO
+  ========================== -->
 
-  <!-- HERO -->
-  <section class="store-hero">
+  <main>
 
-    <div class="hero-glow"></div>
+    <section class="jnx-hero">
 
-    <div class="hero-content">
+      <div class="jnx-hero-content">
 
-      <div class="hero-copy">
+        <div>
 
-        <span class="hero-badge">
-          JNX OFFICIAL STORE
-        </span>
-
-        <h1>
-          Wear the
-          <span>Juris Nexum</span>
-          identity.
-        </h1>
-
-        <p>
-          Official merchandise made for the people who
-          represent Juris Nexum with pride, purpose, and style.
-        </p>
-
-        <div class="hero-actions">
-          <a href="#shop" class="hero-button">
-            Shop Collection
-            <span>→</span>
-          </a>
-
-          <a href="#track" class="hero-link">
-            Track an Order
-          </a>
-        </div>
-
-      </div>
-
-      <div class="hero-product">
-
-        <div class="hero-product-card">
-
-          <div class="hero-product-top">
-            <span>JNX</span>
-            <span>EST. 2026</span>
+          <div class="jnx-eyebrow">
+            Juris Nexum Official Shop
           </div>
 
-          <img src="assets/jnx-logo.png" alt="Juris Nexum">
+          <h1>
+            WEAR
+            <span>THE IDENTITY OF JURIS.</span>
+          </h1>
 
-          <div class="hero-product-bottom">
-            <strong>JURIS NEXUM</strong>
-            <span>LEGAL MANAGEMENT</span>
+          <p class="jnx-hero-text">
+            Discover the official Juris Nexum merchandise collection.
+            Represent the organization through carefully designed pieces
+            made for our community.
+          </p>
+
+          <div class="jnx-actions">
+
+            <a
+              href="shop.html"
+              class="jnx-button primary"
+            >
+              SHOP COLLECTION
+            </a>
+
+            <a
+              href="track-order.html"
+              class="jnx-button secondary"
+            >
+              TRACK MY ORDER
+            </a>
+
           </div>
 
         </div>
 
-      </div>
 
-    </div>
+        <div class="jnx-feature">
 
-  </section>
+          <div class="jnx-feature-top">
 
+            <div class="jnx-feature-label">
+              Official
+            </div>
 
-  <!-- QUICK FEATURES -->
-  <section class="store-features">
+            <div class="jnx-feature-mark">
+              JNX
+            </div>
 
-    <div class="feature-item">
-      <div class="feature-icon">⚡</div>
-      <div>
-        <strong>Easy Ordering</strong>
-        <span>No account required</span>
-      </div>
-    </div>
+          </div>
 
-    <div class="feature-item">
-      <div class="feature-icon">💳</div>
-      <div>
-        <strong>Secure Payment</strong>
-        <span>Multiple payment options</span>
-      </div>
-    </div>
+          <div class="jnx-feature-bottom">
 
-    <div class="feature-item">
-      <div class="feature-icon">🎓</div>
-      <div>
-        <strong>JNX Member Price</strong>
-        <span>Exclusive member savings</span>
-      </div>
-    </div>
+            <h2>
+              JURIS<br>
+              NEXUM
+            </h2>
 
-    <div class="feature-item">
-      <div class="feature-icon">📦</div>
-      <div>
-        <strong>Order Tracking</strong>
-        <span>Check your order anytime</span>
-      </div>
-    </div>
+            <p>
+              Official merchandise of Juris Nexum.
+              Designed to represent connection, identity,
+              and the pursuit of excellence in Legal Management.
+            </p>
 
-  </section>
+          </div>
 
-
-  <!-- SHOP -->
-  <section id="shop" class="store-shop">
-
-    <div class="store-section-heading">
-
-      <div>
-        <span class="section-label">OUR COLLECTION</span>
-        <h2>Shop JNX Merchandise</h2>
-        <p>
-          Find official Juris Nexum merchandise for your everyday look.
-        </p>
-      </div>
-
-    </div>
-
-
-    <!-- SEARCH + FILTER -->
-    <div class="shop-controls">
-
-      <div class="shop-search">
-        <span>⌕</span>
-        <input
-          id="productSearch"
-          type="search"
-          placeholder="Search merchandise..."
-          autocomplete="off"
-        >
-      </div>
-
-      <select id="categoryFilter" aria-label="Filter products">
-        <option value="all">All Categories</option>
-      </select>
-
-    </div>
-
-
-    <div id="productGrid" class="modern-product-grid"></div>
-
-  </section>
-
-
-  <!-- TRACK ORDER -->
-  <section id="track" class="track-section">
-
-    <div class="track-card">
-
-      <div class="track-icon">
-        📦
-      </div>
-
-      <div class="track-content">
-
-        <span class="section-label">ORDER TRACKING</span>
-
-        <h2>Already placed an order?</h2>
-
-        <p>
-          Enter your order number below to view your receipt,
-          payment status, and order progress.
-        </p>
-
-        <form id="trackForm" class="track-form">
-
-          <input
-            id="trackOrderNo"
-            placeholder="e.g. JNX-2026-00001"
-            autocomplete="off"
-            required
-          >
-
-          <button type="submit">
-            Track Order
-            <span>→</span>
-          </button>
-
-        </form>
+        </div>
 
       </div>
 
+    </section>
+
+
+    <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer class="jnx-footer">
+
+    <div class="jnx-footer-inner">
+
+      <p>
+        © 2026 <strong>Juris Nexum</strong>.
+        All rights reserved.
+      </p>
+
+      <p>
+        Official Merchandise Shop
+      </p>
+
     </div>
 
-  </section>
-
-</main>
-
-
-<footer class="store-footer">
-
-  <div class="footer-inner">
-
-    <div class="footer-brand">
-
-      <img src="assets/jnx-logo.png" alt="Juris Nexum">
-
-      <div>
-        <strong>JURIS NEXUM</strong>
-        <span>Official Merchandise Shop</span>
-      </div>
-
-    </div>
-
-    <div class="footer-copy">
-      © 2026 Juris Nexum. All rights reserved.
-    </div>
-
-  </div>
-
-</footer>
-
-
-<script src="js/config.js"></script>
-<script src="js/shop.js"></script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-
-  const form = document.getElementById("trackForm");
-
-  if (!form) return;
-
-  form.addEventListener("submit", event => {
-
-    event.preventDefault();
-
-    const orderNumber =
-      document.getElementById("trackOrderNo").value.trim();
-
-    if (!orderNumber) return;
-
-    window.location.href =
-      "order.html?orderNo=" +
-      encodeURIComponent(orderNumber);
-
-  });
-
-});
-</script>
+  </footer>
 
 </body>
 </html>
