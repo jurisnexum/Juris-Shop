@@ -160,7 +160,7 @@ function renderCart() {
     box.innerHTML = `
       <div class="empty">
         Your cart is empty.<br><br>
-        <a href="index.html">
+        <a href="shop.html">
           Return to shop
         </a>
       </div>`;
