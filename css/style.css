@@ -2320,3 +2320,493 @@ footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px
 
 
 }
+
+/* =========================================================
+   JNX ORDER IN THE COURT — GRAFFITI BOOM
+   ========================================================= */
+
+.order-court-boom {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center,
+      rgba(125, 69, 168, 0.20) 0%,
+      rgba(7, 5, 12, 0.96) 58%,
+      rgba(0, 0, 0, 0.98) 100%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.order-court-boom.is-active {
+  opacity: 1;
+  visibility: visible;
+  animation: courtScreenShake 1.05s ease-in-out both;
+}
+
+/* BIG CENTRAL IMPACT */
+
+.court-boom-flash {
+  position: absolute;
+  width: 35vw;
+  height: 35vw;
+  min-width: 250px;
+  min-height: 250px;
+  max-width: 650px;
+  max-height: 650px;
+  border-radius: 50%;
+  background: white;
+  opacity: 0;
+  transform: scale(0.05);
+  filter: blur(2px);
+}
+
+.order-court-boom.is-active .court-boom-flash {
+  animation: courtFlash 0.62s cubic-bezier(.1,.8,.2,1) forwards;
+}
+
+/* GRAFFITI CONTAINER */
+
+.court-graffiti {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 0.72;
+  text-align: center;
+  transform: scale(0.02) rotate(-12deg);
+  opacity: 0;
+  filter:
+    drop-shadow(0 8px 0 rgba(36, 16, 50, 0.95))
+    drop-shadow(0 20px 25px rgba(0, 0, 0, 0.7));
+}
+
+.order-court-boom.is-active .court-graffiti {
+  animation:
+    courtGraffitiEntrance 1.45s
+    cubic-bezier(.08, 1.45, .22, 1)
+    0.03s
+    forwards;
+}
+
+/* SMALL TOP TEXT */
+
+.court-small {
+  margin-bottom: 20px;
+  font-family:
+    "Arial Black",
+    Impact,
+    sans-serif;
+  font-size: clamp(11px, 1.7vw, 20px);
+  font-weight: 900;
+  letter-spacing: 0.28em;
+  color: white;
+  opacity: 0;
+  transform: translateY(35px) rotate(-4deg);
+  text-shadow:
+    3px 3px 0 #24102f,
+    0 0 15px rgba(255,255,255,.5);
+}
+
+.order-court-boom.is-active .court-small {
+  animation:
+    courtSmallAppear 0.45s ease-out
+    0.08s forwards;
+}
+
+/* MAIN GRAFFITI WORDS */
+
+.court-graffiti strong {
+  display: block;
+  font-family:
+    Impact,
+    "Arial Black",
+    sans-serif;
+  font-size: clamp(82px, 15vw, 205px);
+  font-weight: 900;
+  letter-spacing: -0.065em;
+  color: white;
+
+  -webkit-text-stroke:
+    clamp(4px, 0.65vw, 9px)
+    #24102f;
+
+  text-shadow:
+    6px 6px 0 #e7c9ff,
+    12px 12px 0 #7d45a8,
+    19px 19px 0 #24102f,
+    25px 25px 35px rgba(0,0,0,.6);
+
+  transform: translateX(-120vw) skew(-9deg) rotate(-5deg);
+  opacity: 0;
+}
+
+/* ORDER enters first */
+
+.order-court-boom.is-active
+.court-graffiti strong:nth-of-type(1) {
+  animation:
+    graffitiOrder 0.62s
+    cubic-bezier(.1, 1.65, .25, 1)
+    0.08s forwards;
+}
+
+/* IN THE enters from the opposite side */
+
+.court-graffiti strong:nth-of-type(2) {
+  font-size: clamp(55px, 10vw, 135px);
+  margin-left: 7vw;
+  color: #e7c9ff;
+  transform: translateX(120vw) skew(-8deg) rotate(4deg);
+}
+
+.order-court-boom.is-active
+.court-graffiti strong:nth-of-type(2) {
+  animation:
+    graffitiInThe 0.58s
+    cubic-bezier(.1, 1.7, .25, 1)
+    0.30s forwards;
+}
+
+/* COURT lands LAST and hardest */
+
+.court-graffiti strong:nth-of-type(3) {
+  font-size: clamp(95px, 18vw, 235px);
+  color: white;
+  transform:
+    translateY(100vh)
+    scale(1.35)
+    skew(-10deg)
+    rotate(-3deg);
+}
+
+.order-court-boom.is-active
+.court-graffiti strong:nth-of-type(3) {
+  animation:
+    graffitiCourt 0.48s
+    cubic-bezier(.08, 1.8, .2, 1)
+    0.48s forwards;
+}
+
+/* SPRAY PAINT STARS */
+
+.court-spray {
+  position: absolute;
+  z-index: 20;
+  color: white;
+  font-family: sans-serif;
+  font-size: clamp(25px, 4vw, 65px);
+  opacity: 0;
+  text-shadow:
+    3px 3px 0 #7d45a8,
+    6px 6px 0 #24102f;
+}
+
+.spray-1 {
+  top: 2%;
+  left: -12%;
+  transform: rotate(-20deg) scale(.1);
+}
+
+.spray-2 {
+  right: -13%;
+  top: 34%;
+  transform: rotate(25deg) scale(.1);
+}
+
+.spray-3 {
+  left: -10%;
+  bottom: 4%;
+  transform: rotate(-30deg) scale(.1);
+}
+
+.order-court-boom.is-active .spray-1 {
+  animation: sprayBurst .6s ease-out .55s forwards;
+}
+
+.order-court-boom.is-active .spray-2 {
+  animation: sprayBurst .6s ease-out .72s forwards;
+}
+
+.order-court-boom.is-active .spray-3 {
+  animation: sprayBurst .6s ease-out .88s forwards;
+}
+
+/* PAINT SPLATTERS */
+
+.order-court-boom::before,
+.order-court-boom::after {
+  content: "";
+  position: absolute;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: #7d45a8;
+  opacity: 0;
+  box-shadow:
+    85px -45px 0 8px #e7c9ff,
+    -95px 60px 0 4px #7d45a8,
+    135px 75px 0 2px white,
+    -150px -70px 0 7px #e7c9ff,
+    210px -5px 0 3px #7d45a8,
+    -220px 20px 0 2px white;
+}
+
+.order-court-boom.is-active::before {
+  animation: paintSplatterLeft .8s ease-out .2s forwards;
+}
+
+.order-court-boom.is-active::after {
+  animation: paintSplatterRight .8s ease-out .35s forwards;
+}
+
+/* IMPACT RAYS */
+
+.court-boom-burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 45vh;
+  background: white;
+  transform-origin: center;
+  opacity: 0;
+  box-shadow:
+    0 0 18px rgba(255,255,255,.8);
+}
+
+.burst-1 { transform: translate(-50%, -50%) rotate(0deg) scaleY(.05); }
+.burst-2 { transform: translate(-50%, -50%) rotate(45deg) scaleY(.05); }
+.burst-3 { transform: translate(-50%, -50%) rotate(90deg) scaleY(.05); }
+.burst-4 { transform: translate(-50%, -50%) rotate(135deg) scaleY(.05); }
+
+.order-court-boom.is-active .court-boom-burst {
+  animation: courtBurst .75s cubic-bezier(.1,.9,.2,1) .25s forwards;
+}
+
+/* ANIMATIONS */
+
+@keyframes courtFlash {
+  0% {
+    opacity: 0;
+    transform: scale(.05);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(5);
+  }
+}
+
+@keyframes courtGraffitiEntrance {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes courtSmallAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(35px) rotate(-4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(-2deg);
+  }
+}
+
+@keyframes graffitiOrder {
+  0% {
+    opacity: 0;
+    transform: translateX(-120vw) skew(-9deg) rotate(-5deg) scale(.4);
+  }
+  65% {
+    opacity: 1;
+    transform: translateX(7vw) skew(-9deg) rotate(-5deg) scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) skew(-9deg) rotate(-2deg) scale(1);
+  }
+}
+
+@keyframes graffitiInThe {
+  0% {
+    opacity: 0;
+    transform: translateX(120vw) skew(-8deg) rotate(4deg) scale(.4);
+  }
+  65% {
+    opacity: 1;
+    transform: translateX(-5vw) skew(-8deg) rotate(4deg) scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) skew(-8deg) rotate(2deg) scale(1);
+  }
+}
+
+@keyframes graffitiCourt {
+  0% {
+    opacity: 0;
+    transform:
+      translateY(100vh)
+      scale(1.45)
+      skew(-10deg)
+      rotate(-3deg);
+  }
+  55% {
+    opacity: 1;
+    transform:
+      translateY(-5vh)
+      scale(1.12)
+      skew(-10deg)
+      rotate(-3deg);
+  }
+  72% {
+    transform:
+      translateY(1vh)
+      scale(.96)
+      skew(-10deg)
+      rotate(-3deg);
+  }
+  100% {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1)
+      skew(-8deg)
+      rotate(-2deg);
+  }
+}
+
+@keyframes sprayBurst {
+  0% {
+    opacity: 0;
+    transform: scale(.1) rotate(0deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.4) rotate(15deg);
+  }
+  100% {
+    opacity: .9;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes paintSplatterLeft {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.1);
+  }
+  100% {
+    opacity: .75;
+    transform: translate(-220%, -20%) scale(2.5);
+  }
+}
+
+@keyframes paintSplatterRight {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.1);
+  }
+  100% {
+    opacity: .75;
+    transform: translate(180%, 30%) scale(2.5);
+  }
+}
+
+@keyframes courtBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(0deg) scaleY(.05);
+  }
+  25% {
+    opacity: .95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(0deg) scaleY(1.8);
+  }
+}
+
+@keyframes courtScreenShake {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-8px, 5px);
+  }
+  20% {
+    transform: translate(8px, -5px);
+  }
+  30% {
+    transform: translate(-7px, -4px);
+  }
+  40% {
+    transform: translate(7px, 4px);
+  }
+  50% {
+    transform: translate(-5px, -3px);
+  }
+  60% {
+    transform: translate(5px, 3px);
+  }
+  70% {
+    transform: translate(-3px, 2px);
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .court-graffiti strong {
+    font-size: clamp(58px, 19vw, 105px);
+  }
+
+  .court-graffiti strong:nth-of-type(2) {
+    font-size: clamp(42px, 13vw, 78px);
+  }
+
+  .court-graffiti strong:nth-of-type(3) {
+    font-size: clamp(65px, 22vw, 125px);
+  }
+
+  .court-small {
+    letter-spacing: .14em;
+  }
+}
+
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+  .order-court-boom.is-active,
+  .order-court-boom.is-active .court-graffiti,
+  .order-court-boom.is-active .court-boom-flash,
+  .order-court-boom.is-active .court-boom-burst,
+  .order-court-boom.is-active .court-small,
+  .order-court-boom.is-active .court-graffiti strong,
+  .order-court-boom.is-active .court-spray {
+    animation: none !important;
+  }
+
+  .order-court-boom.is-active .court-graffiti,
+  .order-court-boom.is-active .court-graffiti strong,
+  .order-court-boom.is-active .court-small {
+    opacity: 1;
+    transform: none;
+  }
+}

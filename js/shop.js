@@ -255,6 +255,120 @@ function getProductPricing(product, variant) {
   };
 }
 
+function playAddToCartSound() {
+  try {
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if (!AudioContext) return;
+
+    const ctx = new AudioContext();
+
+    const play = () => {
+      const now = ctx.currentTime;
+
+      // Main cart "pop"
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+
+      osc.frequency.setValueAtTime(
+        420,
+        now
+      );
+
+      osc.frequency.exponentialRampToValueAtTime(
+        900,
+        now + 0.09
+      );
+
+      osc.frequency.exponentialRampToValueAtTime(
+        650,
+        now + 0.18
+      );
+
+      gain.gain.setValueAtTime(
+        0.0001,
+        now
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.45,
+        now + 0.008
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        now + 0.22
+      );
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.23);
+
+      // Bright confirmation tone
+      const chime = ctx.createOscillator();
+      const chimeGain = ctx.createGain();
+
+      chime.type = "triangle";
+
+      chime.frequency.setValueAtTime(
+        1100,
+        now
+      );
+
+      chime.frequency.exponentialRampToValueAtTime(
+        1500,
+        now + 0.06
+      );
+
+      chimeGain.gain.setValueAtTime(
+        0.0001,
+        now
+      );
+
+      chimeGain.gain.exponentialRampToValueAtTime(
+        0.20,
+        now + 0.006
+      );
+
+      chimeGain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        now + 0.14
+      );
+
+      chime.connect(chimeGain);
+      chimeGain.connect(ctx.destination);
+
+      chime.start(now);
+      chime.stop(now + 0.15);
+
+      setTimeout(() => {
+        ctx.close().catch(() => {});
+      }, 500);
+    };
+
+    // Some browsers create the AudioContext suspended.
+    if (ctx.state === "suspended") {
+      ctx.resume()
+        .then(play)
+        .catch(() => {});
+    } else {
+      play();
+    }
+
+  } catch (err) {
+    console.warn(
+      "Add-to-cart sound unavailable:",
+      err
+    );
+  }
+}
+
 function addToCart(productId, variant) {
   const product =
     PRODUCTS.find(
@@ -317,6 +431,8 @@ function addToCart(productId, variant) {
   }
 
   saveCart(cart);
+
+  playAddToCartSound();
 
   updateCartCount();
   animateAddToCart(productId);

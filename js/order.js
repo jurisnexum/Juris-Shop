@@ -112,6 +112,96 @@ async function loadOrder() {
    RECEIPT PRINTING ANIMATION
    ========================================================= */
 
+function playGavelSmash() {
+  try {
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if (!AudioContext) return;
+
+    const ctx = new AudioContext();
+    const now = ctx.currentTime;
+
+    // Low wooden impact.
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(125, now);
+    osc.frequency.exponentialRampToValueAtTime(55, now + 0.12);
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.75, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.25);
+
+    // Sharp wooden click.
+    const click = ctx.createOscillator();
+    const clickGain = ctx.createGain();
+
+    click.type = "square";
+    click.frequency.setValueAtTime(240, now);
+    click.frequency.exponentialRampToValueAtTime(90, now + 0.045);
+
+    clickGain.gain.setValueAtTime(0.0001, now);
+    clickGain.gain.exponentialRampToValueAtTime(0.22, now + 0.004);
+    clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+
+    click.connect(clickGain);
+    clickGain.connect(ctx.destination);
+
+    click.start(now);
+    click.stop(now + 0.1);
+
+    // Short noise burst for the physical "SMASH".
+    const bufferSize = ctx.sampleRate * 0.12;
+    const buffer = ctx.createBuffer(
+      1,
+      bufferSize,
+      ctx.sampleRate
+    );
+
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] =
+        (Math.random() * 2 - 1) *
+        Math.pow(1 - i / bufferSize, 5);
+    }
+
+    const noise = ctx.createBufferSource();
+    const noiseGain = ctx.createGain();
+
+    noise.buffer = buffer;
+
+    noiseGain.gain.setValueAtTime(0.28, now);
+    noiseGain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      now + 0.12
+    );
+
+    noise.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+
+    noise.start(now);
+    noise.stop(now + 0.13);
+
+    setTimeout(() => {
+      ctx.close().catch(() => {});
+    }, 500);
+
+  } catch (err) {
+    console.warn("Gavel sound unavailable:", err);
+  }
+}
+
+
 function showPrintingAnimation(order) {
 
   const overlay =
@@ -586,6 +676,24 @@ function showPrintingAnimation(order) {
 
 
   /*
+   * ORDER IN THE COURT
+   *
+   * The checkout page sets this flag when a new order
+   * has just been placed. The animation is now handled
+   * on the order page so navigation cannot cut it off.
+   */
+  /*
+   * A freshly placed order includes ?court=1 in the URL.
+   * This is more reliable than relying on sessionStorage
+   * during the checkout -> order page navigation.
+   */
+  const params =
+    new URLSearchParams(location.search);
+
+  const playCourtBoom =
+    params.get("court") === "1";
+
+  /*
    * RESET ANIMATION
    */
   overlay.classList.remove(
@@ -641,25 +749,97 @@ function showPrintingAnimation(order) {
 
   /*
    * START PRINTER
+   *
+   * If this is a freshly placed order, play the courtroom
+   * animation first. The printer starts immediately after
+   * the graffiti disappears.
    */
-  requestAnimationFrame(() => {
+  const startPrinter = () => {
 
-    overlay.classList.add(
-      "show",
-      "printing"
-    );
+    requestAnimationFrame(() => {
 
-    startJnxPrinterSound();
+      overlay.classList.add(
+        "show",
+        "printing"
+      );
+
+      startJnxPrinterSound();
 
 
-    if (printedPaper) {
+      if (printedPaper) {
 
-      printedPaper.style.animation =
-        "paperFeedDown 3.8s cubic-bezier(.22,.61,.36,1) forwards";
+        printedPaper.style.animation =
+          "paperFeedDown 3.8s cubic-bezier(.22,.61,.36,1) forwards";
+
+      }
+
+    });
+
+  };
+
+
+  if (playCourtBoom) {
+
+    const boom =
+      document.getElementById(
+        "orderCourtBoom"
+      );
+
+    if (boom) {
+
+      boom.classList.remove(
+        "is-active"
+      );
+
+      /*
+       * Short dramatic pause before the reveal.
+       */
+      setTimeout(() => {
+
+        void boom.offsetWidth;
+
+        boom.classList.add(
+          "is-active"
+        );
+
+        /*
+         * Gavel smash as COURT! lands.
+         */
+        setTimeout(() => {
+
+          if (typeof playGavelSmash === "function") {
+            playGavelSmash();
+          }
+
+        }, 600);
+
+        /*
+         * Let the graffiti finish, then immediately
+         * hand control to the receipt printer.
+         */
+        setTimeout(() => {
+
+          boom.classList.remove(
+            "is-active"
+          );
+
+          startPrinter();
+
+        }, 2100);
+
+      }, 700);
+
+    } else {
+
+      startPrinter();
 
     }
 
-  });
+  } else {
+
+    startPrinter();
+
+  }
 
 
   /*

@@ -522,6 +522,150 @@ async function verifyMember() {
   }
 }
 
+
+
+function playOrderCourtBoom() {
+  return new Promise(resolve => {
+
+    const boom =
+      document.getElementById(
+        "orderCourtBoom"
+      );
+
+    if (!boom) {
+      resolve();
+      return;
+    }
+
+    boom.classList.remove(
+      "is-active"
+    );
+
+    /*
+     * Short dramatic pause.
+     */
+    window.setTimeout(() => {
+
+      void boom.offsetWidth;
+
+      boom.classList.add(
+        "is-active"
+      );
+
+      /*
+       * Gavel hits as COURT! lands.
+       */
+      window.setTimeout(() => {
+        playGavelSmash();
+      }, 600);
+
+      /*
+       * Let the full graffiti animation finish.
+       */
+      window.setTimeout(() => {
+
+        boom.classList.remove(
+          "is-active"
+        );
+
+        resolve();
+
+      }, 2100);
+
+    }, 700);
+  });
+}
+
+function playGavelSmash() {
+  try {
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if (!AudioContext) return;
+
+    const ctx = new AudioContext();
+    const now = ctx.currentTime;
+
+    // Low wooden impact.
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(125, now);
+    osc.frequency.exponentialRampToValueAtTime(55, now + 0.12);
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.75, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.25);
+
+    // Sharp wooden click.
+    const click = ctx.createOscillator();
+    const clickGain = ctx.createGain();
+
+    click.type = "square";
+    click.frequency.setValueAtTime(240, now);
+    click.frequency.exponentialRampToValueAtTime(90, now + 0.045);
+
+    clickGain.gain.setValueAtTime(0.0001, now);
+    clickGain.gain.exponentialRampToValueAtTime(0.22, now + 0.004);
+    clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+
+    click.connect(clickGain);
+    clickGain.connect(ctx.destination);
+
+    click.start(now);
+    click.stop(now + 0.1);
+
+    // Short noise burst for the physical "SMASH".
+    const bufferSize = ctx.sampleRate * 0.12;
+    const buffer = ctx.createBuffer(
+      1,
+      bufferSize,
+      ctx.sampleRate
+    );
+
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] =
+        (Math.random() * 2 - 1) *
+        Math.pow(1 - i / bufferSize, 5);
+    }
+
+    const noise = ctx.createBufferSource();
+    const noiseGain = ctx.createGain();
+
+    noise.buffer = buffer;
+
+    noiseGain.gain.setValueAtTime(0.28, now);
+    noiseGain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      now + 0.12
+    );
+
+    noise.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+
+    noise.start(now);
+    noise.stop(now + 0.13);
+
+    setTimeout(() => {
+      ctx.close().catch(() => {});
+    }, 500);
+
+  } catch (err) {
+    console.warn("Gavel sound unavailable:", err);
+  }
+}
+
+
 async function submitOrder(event) {
   event.preventDefault();
 
@@ -670,7 +814,11 @@ async function submitOrder(event) {
         proofFile
     };
 
-    const response =
+  
+  const courtBoomPromise =
+      playOrderCourtBoom();
+
+  const response =
       await fetch(API_URL, {
         method: "POST",
         headers: {
@@ -766,6 +914,12 @@ async function submitOrder(event) {
       "jnx_new_order_animation",
       result.orderNumber
     );
+
+    // The graffiti has already been playing while the
+    // order was being submitted. Finish it, then go
+    // directly to the receipt/printing animation.
+
+    await courtBoomPromise;
 
     window.location.href =
       `order.html?orderNo=${encodeURIComponent(
