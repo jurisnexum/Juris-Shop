@@ -583,6 +583,91 @@
   letter-spacing: 0;
 }
 
+
+/* =========================
+   JNX + MCC BRAND HEADER
+========================= */
+
+.jnx-brand {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--ink, #171717);
+  text-decoration: none;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.jnx-brand-logo,
+.jnx-brand-mcc {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.jnx-brand-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  text-align: center;
+}
+
+.jnx-brand-main {
+  display: block !important;
+  color: var(--ink, #171717);
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+
+.jnx-brand-sub {
+  display: block !important;
+  margin-top: 6px !important;
+  color: var(--purple, #6d28d9) !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2.5px !important;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .jnx-nav-inner {
+    padding: 15px 18px !important;
+    gap: 15px;
+  }
+
+  .jnx-brand {
+    gap: 8px;
+  }
+
+  .jnx-brand-logo,
+  .jnx-brand-mcc {
+    width: 38px;
+    height: 38px;
+  }
+
+  .jnx-brand-center {
+    min-width: 0;
+  }
+
+  .jnx-brand-main {
+    font-size: 13px !important;
+    letter-spacing: 1px;
+  }
+
+  .jnx-brand-sub {
+    margin-top: 4px !important;
+    font-size: 6px !important;
+    letter-spacing: 1.5px !important;
+  }
+}
+
 </style>
 </head>
 
@@ -596,9 +681,23 @@
 
     <div class="jnx-nav-inner">
 
-      <a href="index.html" class="jnx-brand">
-        JURIS NEXUM
-        <span>OFFICIAL MERCHANDISE</span>
+      <a href="index.html" class="jnx-brand" aria-label="Juris Nexum Official Merchandise">
+        <img
+          src="assets/jnx-logo.png"
+          alt="Juris Nexum logo"
+          class="jnx-brand-logo"
+        >
+
+        <span class="jnx-brand-center">
+          <span class="jnx-brand-main">JURIS NEXUM</span>
+          <span class="jnx-brand-sub">OFFICIAL MERCHANDISE</span>
+        </span>
+
+        <img
+          src="assets/mcc-logo.png"
+          alt="Mabalacat City College logo"
+          class="jnx-brand-mcc"
+        >
       </a>
 
       <nav class="jnx-nav-links">

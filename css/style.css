@@ -2810,3 +2810,90 @@ footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px
     transform: none;
   }
 }
+
+/* =========================
+   JNX + MCC CHECKOUT HEADER
+========================= */
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.site-header .brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.site-header .brand-logo,
+.site-header .brand-mcc {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.site-header .brand-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  text-align: center;
+}
+
+.site-header .brand-main {
+  display: block;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.site-header .brand-sub {
+  display: block;
+  margin-top: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .site-header {
+    gap: 12px;
+  }
+
+  .site-header .brand {
+    gap: 8px;
+  }
+
+  .site-header .brand-logo,
+  .site-header .brand-mcc {
+    width: 38px;
+    height: 38px;
+  }
+
+  .site-header .brand-center {
+    min-width: 0;
+  }
+
+  .site-header .brand-main {
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .site-header .brand-sub {
+    margin-top: 4px;
+    font-size: 6px;
+    letter-spacing: 1.5px;
+  }
+}
