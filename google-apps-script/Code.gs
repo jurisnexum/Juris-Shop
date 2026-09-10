@@ -1550,33 +1550,59 @@ function nextOrderNumber_() {
     );
   }
 
-  const values =
-    settings
-      .getDataRange()
-      .getValues();
+  /*
+   * Keep the sequence in SETTINGS.
+   * We only read the first two columns needed
+   * instead of the entire sheet.
+   */
+  const lastRow =
+    settings.getLastRow();
 
   let row = -1;
   let current = 1;
 
-  for (
-    let i = 1;
-    i < values.length;
-    i++
-  ) {
-    if (
-      String(values[i][0]) ===
-      CONFIG.ORDER_SEQUENCE_KEY
+  if (lastRow >= 2) {
+    const values =
+      settings
+        .getRange(
+          2,
+          1,
+          lastRow - 1,
+          2
+        )
+        .getValues();
+
+    for (
+      let i = 0;
+      i < values.length;
+      i++
     ) {
-      row = i + 1;
-      current =
-        Number(values[i][1]) || 1;
-      break;
+      if (
+        String(values[i][0]).trim() ===
+        CONFIG.ORDER_SEQUENCE_KEY
+      ) {
+        row = i + 2;
+        current =
+          Number(values[i][1]) || 1;
+        break;
+      }
     }
   }
 
+  /*
+   * The value stored in SETTINGS is the NEXT
+   * number to use.
+   *
+   * Example:
+   * stored 1 -> creates JNX-000001
+   * stored 2 -> creates JNX-000002
+   */
   if (row === -1) {
     row =
-      settings.getLastRow() + 1;
+      Math.max(
+        settings.getLastRow() + 1,
+        2
+      );
 
     settings
       .getRange(
@@ -1603,16 +1629,14 @@ function nextOrderNumber_() {
       );
   }
 
-  const year =
-    Utilities.formatDate(
-      new Date(),
-      CONFIG.TIMEZONE,
-      "yyyy"
-    );
-
-  return "JNX-" + year + "-" + String(current).padStart(5, "0");
+  return (
+    "JNX-" +
+    String(current).padStart(
+      6,
+      "0"
+    )
+  );
 }
-
 function getSetting_(key) {
   const sheet =
     SpreadsheetApp
