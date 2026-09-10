@@ -816,33 +816,119 @@ function createOrder_(data) {
         .setValues(itemRows);
     }
 
-    const summaryRows =
-      normalizedItems.map(item => [
-        orderNo,
-        item.productId,
-        item.name,
-        item.variant,
-        item.quantity
-      ]);
+    const summarySheet =
+      ss.getSheetByName(CONFIG.SUMMARY_SHEET);
 
-    if (summaryRows.length) {
-      const summarySheet =
-        ss.getSheetByName(CONFIG.SUMMARY_SHEET);
+    if (!summarySheet) {
+      throw new Error(
+        "ORDER_SUMMARY sheet is not configured."
+      );
+    }
 
-      if (!summarySheet) {
-        throw new Error(
-          "ORDER_SUMMARY sheet is not configured."
-        );
+    /*
+     * Maintain one cumulative row per Product ID + Variant.
+     * Existing quantities are increased instead of creating duplicates.
+     *
+     * Read the summary once, calculate everything in memory,
+     * then write the changed summary data in one batch.
+     */
+    const summaryLastRow =
+      summarySheet.getLastRow();
+
+    const existingSummary =
+      summaryLastRow >= 2
+        ? summarySheet
+            .getRange(
+              2,
+              1,
+              summaryLastRow - 1,
+              4
+            )
+            .getValues()
+        : [];
+
+    const summaryMap = new Map();
+
+    existingSummary.forEach((row, index) => {
+      const productId =
+        String(row[0] || "").trim();
+
+      const productName =
+        String(row[1] || "").trim();
+
+      const variant =
+        String(row[2] || "").trim();
+
+      if (!productId || !variant) {
+        return;
       }
 
+      const key =
+        productId.toLowerCase() +
+        "||" +
+        variant.toLowerCase();
+
+      summaryMap.set(key, {
+        productId,
+        productName,
+        variant,
+        quantity: Number(row[3]) || 0
+      });
+    });
+
+    normalizedItems.forEach(item => {
+      const productId =
+        String(item.productId || "").trim();
+
+      const productName =
+        String(item.name || "").trim();
+
+      const variant =
+        String(item.variant || "").trim();
+
+      const quantity =
+        Number(item.quantity) || 0;
+
+      const key =
+        productId.toLowerCase() +
+        "||" +
+        variant.toLowerCase();
+
+      const existing =
+        summaryMap.get(key);
+
+      if (existing) {
+        existing.quantity += quantity;
+      } else {
+        summaryMap.set(key, {
+          productId,
+          productName,
+          variant,
+          quantity
+        });
+      }
+    });
+
+    const summaryRows = Array.from(
+      summaryMap.values()
+    ).map(item => [
+      item.productId,
+      item.productName,
+      item.variant,
+      item.quantity
+    ]);
+
+    if (summaryRows.length) {
       summarySheet
         .getRange(
-          summarySheet.getLastRow() + 1,
+          2,
           1,
           summaryRows.length,
-          5
+          4
         )
-        .setValues(summaryRows);
+        .setValues(
+          summaryRows
+        );
     }
 
       /*
