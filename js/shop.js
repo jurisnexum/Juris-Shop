@@ -630,8 +630,19 @@ function renderProducts(
 
             </div>
 
-            <label>
-              SIZE / VARIANT
+            <label class="jnx-size-label">
+
+              <span class="jnx-size-label-row">
+                <span>SIZE / VARIANT</span>
+
+                <button
+                  type="button"
+                  class="jnx-size-guide-button"
+                  data-size-guide="true"
+                >
+                  SIZE GUIDE
+                </button>
+              </span>
 
               <select
                 id="variant-${escapeHtml(product.id)}"
@@ -1210,3 +1221,90 @@ document.addEventListener(
   "DOMContentLoaded",
   init
 );
+
+/* =========================================================
+   JNX SIZE GUIDE
+   ========================================================= */
+
+function openSizeGuide() {
+  let overlay = document.getElementById("jnxSizeGuideOverlay");
+
+  if (!overlay) {
+    overlay = document.createElement("div");
+
+    overlay.id = "jnxSizeGuideOverlay";
+    overlay.className = "jnx-size-guide-overlay";
+
+    overlay.innerHTML = `
+      <div class="jnx-size-guide-modal" role="dialog" aria-modal="true" aria-labelledby="jnxSizeGuideTitle">
+
+        <button
+          type="button"
+          class="jnx-size-guide-close"
+          aria-label="Close size guide"
+        >
+          ×
+        </button>
+
+        <div class="jnx-size-guide-heading">
+          <span>JURIS NEXUM</span>
+          <h2 id="jnxSizeGuideTitle">SIZE GUIDE</h2>
+          <p>Choose the right size before adding to your cart.</p>
+        </div>
+
+        <div class="jnx-size-guide-image-wrap">
+          <img
+            src="assets/size-reference.jpg"
+            alt="Juris Nexum merchandise size guide"
+          >
+        </div>
+
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const closeButton =
+      overlay.querySelector(".jnx-size-guide-close");
+
+    closeButton.addEventListener("click", closeSizeGuide);
+
+    overlay.addEventListener("click", event => {
+      if (event.target === overlay) {
+        closeSizeGuide();
+      }
+    });
+  }
+
+  overlay.classList.add("show");
+  document.body.classList.add("jnx-size-guide-open");
+}
+
+
+function closeSizeGuide() {
+  const overlay =
+    document.getElementById("jnxSizeGuideOverlay");
+
+  if (!overlay) return;
+
+  overlay.classList.remove("show");
+  document.body.classList.remove("jnx-size-guide-open");
+}
+
+
+document.addEventListener("click", event => {
+  const button =
+    event.target.closest("[data-size-guide='true']");
+
+  if (!button) return;
+
+  event.preventDefault();
+  openSizeGuide();
+});
+
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    closeSizeGuide();
+  }
+});

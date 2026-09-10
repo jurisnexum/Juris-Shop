@@ -2897,3 +2897,252 @@ footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px
     letter-spacing: 1.5px;
   }
 }
+
+
+/* =========================================================
+   JNX SIZE GUIDE
+   ========================================================= */
+
+.jnx-size-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jnx-size-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+.jnx-size-guide-button {
+  border: 0;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #f1e8fa;
+  color: var(--purple-dark);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .4px;
+  cursor: pointer;
+  transition:
+    transform .15s ease,
+    background .15s ease,
+    box-shadow .15s ease;
+}
+
+.jnx-size-guide-button:hover {
+  background: #e4d3f3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(70, 30, 100, .15);
+}
+
+.jnx-size-guide-button:active {
+  transform: scale(.94);
+}
+
+
+/* =========================
+   OVERLAY
+========================= */
+
+.jnx-size-guide-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(12, 8, 18, .82);
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition:
+    opacity .22s ease,
+    visibility .22s ease;
+
+  backdrop-filter: blur(8px);
+}
+
+.jnx-size-guide-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+body.jnx-size-guide-open {
+  overflow: hidden;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.jnx-size-guide-modal {
+  position: relative;
+
+  width: min(620px, 94vw);
+  max-height: 92vh;
+
+  overflow: auto;
+
+  padding: 26px;
+
+  border-radius: 22px;
+
+  background: white;
+
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, .45);
+
+  transform: translateY(18px) scale(.96);
+
+  transition:
+    transform .25s cubic-bezier(.2,.8,.2,1);
+}
+
+.jnx-size-guide-overlay.show .jnx-size-guide-modal {
+  transform: translateY(0) scale(1);
+}
+
+
+/* =========================
+   CLOSE BUTTON
+========================= */
+
+.jnx-size-guide-close {
+  position: absolute;
+
+  top: 14px;
+  right: 14px;
+
+  width: 38px;
+  height: 38px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: #f1edf5;
+  color: #28212e;
+
+  font-size: 27px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  z-index: 2;
+
+  transition:
+    transform .15s ease,
+    background .15s ease;
+}
+
+.jnx-size-guide-close:hover {
+  background: #e5dbea;
+  transform: rotate(6deg) scale(1.05);
+}
+
+.jnx-size-guide-close:active {
+  transform: scale(.9);
+}
+
+
+/* =========================
+   HEADING
+========================= */
+
+.jnx-size-guide-heading {
+  padding: 2px 48px 18px 2px;
+}
+
+.jnx-size-guide-heading span {
+  display: block;
+  margin-bottom: 4px;
+
+  color: var(--purple);
+
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.jnx-size-guide-heading h2 {
+  margin: 0;
+
+  color: var(--purple-dark);
+
+  font-size: clamp(25px, 5vw, 34px);
+  line-height: 1.1;
+}
+
+.jnx-size-guide-heading p {
+  margin: 8px 0 0;
+
+  color: var(--muted);
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* =========================
+   IMAGE
+========================= */
+
+.jnx-size-guide-image-wrap {
+  overflow: hidden;
+
+  border-radius: 14px;
+
+  background: #f5f2f7;
+
+  border: 1px solid #e4dce9;
+}
+
+.jnx-size-guide-image-wrap img {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  max-height: 70vh;
+
+  object-fit: contain;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+  .jnx-size-guide-overlay {
+    padding: 12px;
+  }
+
+  .jnx-size-guide-modal {
+    width: 100%;
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .jnx-size-guide-heading {
+    padding-right: 42px;
+  }
+
+  .jnx-size-guide-button {
+    font-size: 9px;
+    padding: 5px 8px;
+  }
+}
