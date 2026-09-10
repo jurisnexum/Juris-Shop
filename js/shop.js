@@ -54,7 +54,7 @@ const FALLBACK_PRODUCTS = [
     price: 130,
     memberPrice: 110,
     stock: 100,
-    image: "1.png",
+    image: "https://plain-apac-prod-public.komododecks.com/202609/04/7842ZEQ78H4CQMT0jdnK/image.png",
     variants: ["S", "M", "L", "XL"],
     status: "Available"
   },
@@ -66,7 +66,7 @@ const FALLBACK_PRODUCTS = [
     price: 130,
     memberPrice: 110,
     stock: 20,
-    image: "2.png",
+    image: "https://plain-apac-prod-public.komododecks.com/202609/04/MJRvawOZ4pJutkA8inxA/image.png",
     variants: ["Small", "Medium", "Large", "XL"],
     variantDetails: [
       {
@@ -108,7 +108,7 @@ const FALLBACK_PRODUCTS = [
     price: 130,
     memberPrice: 110,
     stock: 100,
-    image: "5.png",
+    image: "https://plain-apac-prod-public.komododecks.com/202609/04/oZbEfwAsPJAjI1bRbZ7h/image.png",
     variants: ["S", "M", "L", "XL"],
     status: "Available"
   },
@@ -120,7 +120,7 @@ const FALLBACK_PRODUCTS = [
     price: 130,
     memberPrice: 110,
     stock: 100,
-    image: "3.png",
+    image: "https://plain-apac-prod-public.komododecks.com/202609/04/8lqGh05Ztu94We2mmsIN/image.png",
     variants: ["S", "M", "L", "XL"],
     status: "Available"
   },
@@ -132,7 +132,7 @@ const FALLBACK_PRODUCTS = [
     price: 130,
     memberPrice: 110,
     stock: 100,
-    image: "4.png",
+    image: "https://plain-apac-prod-public.komododecks.com/202609/04/nBC3rsfvcTZUrFlHokdE/image.png",
     variants: ["S", "M", "L", "XL"],
     status: "Available"
   }
@@ -828,6 +828,9 @@ async function loadProducts() {
         ? data.products
         : FALLBACK_PRODUCTS;
 
+    console.log("JNX API PRODUCTS:", PRODUCTS);
+    console.log("JNX FIRST IMAGE:", PRODUCTS[0]?.image);
+
   } catch (err) {
     console.warn(
       "Using fallback products:",
@@ -1078,8 +1081,46 @@ async function init() {
       "productSearch"
     );
 
-  await loadProducts();
+  // Load cached products immediately.
+  try {
+    const cachedProducts =
+      JSON.parse(
+        localStorage.getItem("jnx_products_cache") || "[]"
+      );
 
+    if (
+      Array.isArray(cachedProducts) &&
+      cachedProducts.length
+    ) {
+      PRODUCTS = cachedProducts;
+    }
+  } catch (error) {
+    console.warn(
+      "Unable to read product cache:",
+      error
+    );
+  }
+
+  // If there is no cache, show fallback products immediately.
+  if (!PRODUCTS.length) {
+    PRODUCTS = FALLBACK_PRODUCTS;
+  }
+
+  const render =
+    () =>
+      renderProducts(
+        filter
+          ? filter.value
+          : "all",
+        search
+          ? search.value
+          : ""
+      );
+
+  // SHOW PRODUCTS IMMEDIATELY.
+  render();
+
+  // Set up category filter immediately.
   if (filter) {
     [
       ...new Set(
@@ -1097,20 +1138,7 @@ async function init() {
         `
       );
     });
-  }
 
-  const render =
-    () =>
-      renderProducts(
-        filter
-          ? filter.value
-          : "all",
-        search
-          ? search.value
-          : ""
-      );
-
-  if (filter) {
     filter.addEventListener(
       "change",
       render
@@ -1124,9 +1152,58 @@ async function init() {
     );
   }
 
-  render();
-
   updateCartCount();
+
+  // Refresh Google Sheets data WITHOUT blocking the page.
+  loadProducts()
+    .then(() => {
+      if (!Array.isArray(PRODUCTS) || !PRODUCTS.length) {
+        return;
+      }
+
+      try {
+        localStorage.setItem(
+          "jnx_products_cache",
+          JSON.stringify(PRODUCTS)
+        );
+      } catch (error) {
+        console.warn(
+          "Unable to cache products:",
+          error
+        );
+      }
+
+      // Update the displayed products with fresh API data.
+      if (filter) {
+        filter.innerHTML =
+          '<option value="all">All</option>';
+
+        [
+          ...new Set(
+            PRODUCTS.map(
+              product => product.category
+            )
+          )
+        ].forEach(category => {
+          filter.insertAdjacentHTML(
+            "beforeend",
+            `
+              <option value="${escapeHtml(category)}">
+                ${escapeHtml(category)}
+              </option>
+            `
+          );
+        });
+      }
+
+      render();
+    })
+    .catch(error => {
+      console.warn(
+        "Background product refresh failed:",
+        error
+      );
+    });
 }
 
 document.addEventListener(

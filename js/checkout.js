@@ -471,12 +471,9 @@ async function verifyMember() {
     const url =
       `${API_URL}?action=verifyMember` +
       `&memberId=${encodeURIComponent(memberId)}` +
-      `&fullName=${encodeURIComponent(fullName)}` +
-      `&t=${Date.now()}`;
+      `&fullName=${encodeURIComponent(fullName)}`;
 
-    const response = await fetch(url, {
-      cache: "no-store"
-    });
+    const response = await fetch(url);
 
     const result = await response.json();
 

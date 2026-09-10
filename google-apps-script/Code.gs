@@ -24,6 +24,7 @@ const CONFIG = {
   VARIANTS_SHEET: "PRODUCT_VARIANTS",
   MEMBERS_SHEET: "MEMBERS",
   ORDERS_SHEET: "ORDERS",
+  SUMMARY_SHEET: "ORDER_SUMMARY",
   ITEMS_SHEET: "ORDER_ITEMS",
   SETTINGS_SHEET: "SETTINGS",
   PROOF_FOLDER_KEY: "PROOF_FOLDER_ID",
@@ -138,6 +139,7 @@ function setupShop() {
   const variants = getOrCreateSheet_(ss, CONFIG.VARIANTS_SHEET);
   const members = getOrCreateSheet_(ss, CONFIG.MEMBERS_SHEET);
   const orders = getOrCreateSheet_(ss, CONFIG.ORDERS_SHEET);
+  const summary = getOrCreateSheet_(ss, CONFIG.SUMMARY_SHEET);
   const items = getOrCreateSheet_(ss, CONFIG.ITEMS_SHEET);
   const settings = getOrCreateSheet_(ss, CONFIG.SETTINGS_SHEET);
 
@@ -194,6 +196,14 @@ function setupShop() {
     "Member Name",
     "Discount Amount",
     "Pricing Type"
+  ]);
+
+  setHeaders_(summary, [
+    "Order No.",
+    "Product ID",
+    "Product Name",
+    "Variant",
+    "Quantity"
   ]);
 
   setHeaders_(items, [
@@ -292,9 +302,88 @@ function normalizeMemberName_(value) {
   return String(value || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
-    .toLowerCase();
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .sort()
+    .join(" ");
+}
+
+function memberNamesMatch_(entered, registered) {
+  const clean = value =>
+    String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9\s,]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const enteredName = clean(entered);
+  const registeredName = clean(registered);
+
+  if (!enteredName || !registeredName) {
+    return false;
+  }
+
+  // Handle the MEMBERS sheet format:
+  // SURNAME, FIRST NAME MIDDLE NAME
+  if (registeredName.includes(",")) {
+    const parts = registeredName
+      .split(",")
+      .map(part => part.trim())
+      .filter(Boolean);
+
+    const surname = parts[0];
+    const givenNames = parts.slice(1).join(" ");
+
+    const registeredTokens =
+      (surname + " " + givenNames)
+        .split(/\s+/)
+        .filter(Boolean)
+        .sort();
+
+    const enteredTokens =
+      enteredName
+        .replace(/,/g, " ")
+        .split(/\s+/)
+        .filter(Boolean)
+        .sort();
+
+    return (
+      registeredTokens.length === enteredTokens.length &&
+      registeredTokens.every(
+        (value, index) =>
+          value === enteredTokens[index]
+      )
+    );
+  }
+
+  // Fallback for names without a comma.
+  const registeredTokens =
+    registeredName
+      .replace(/,/g, " ")
+      .split(/\s+/)
+      .filter(Boolean)
+      .sort();
+
+  const enteredTokens =
+    enteredName
+      .replace(/,/g, " ")
+      .split(/\s+/)
+      .filter(Boolean)
+      .sort();
+
+  return (
+    registeredTokens.length === enteredTokens.length &&
+    registeredTokens.every(
+      (value, index) =>
+        value === enteredTokens[index]
+    )
+  );
 }
 
 function verifyMember_(data) {
@@ -347,13 +436,7 @@ function verifyMember_(data) {
    * - ignores leading/trailing spaces
    * - ignores accents/diacritics
    */
-  const enteredName =
-    normalizeMemberName_(buyerName);
-
-  const registeredName =
-    normalizeMemberName_(member.fullName);
-
-  if (enteredName !== registeredName) {
+  if (!memberNamesMatch_(buyerName, member.fullName)) {
     return {
       ok: false,
       error:
@@ -686,8 +769,7 @@ function createOrder_(data) {
 
     /*
      * IMPORTANT:
-     * Existing A-O columns remain unchanged.
-     * Member information is appended as P-S.
+     * Existing ORDERS columns A-S remain unchanged.
      */
     ordersSheet.appendRow([
       orderNo,
@@ -732,6 +814,35 @@ function createOrder_(data) {
           7
         )
         .setValues(itemRows);
+    }
+
+    const summaryRows =
+      normalizedItems.map(item => [
+        orderNo,
+        item.productId,
+        item.name,
+        item.variant,
+        item.quantity
+      ]);
+
+    if (summaryRows.length) {
+      const summarySheet =
+        ss.getSheetByName(CONFIG.SUMMARY_SHEET);
+
+      if (!summarySheet) {
+        throw new Error(
+          "ORDER_SUMMARY sheet is not configured."
+        );
+      }
+
+      summarySheet
+        .getRange(
+          summarySheet.getLastRow() + 1,
+          1,
+          summaryRows.length,
+          5
+        )
+        .setValues(summaryRows);
     }
 
       /*
