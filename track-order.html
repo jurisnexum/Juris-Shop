@@ -816,11 +816,23 @@
           </div>
         </div>
 
-        <div
-          id="resultOrderStatus"
-          class="jnx-order-status"
-        >
-          Pending
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div
+            id="resultOrderStatus"
+            class="jnx-order-status"
+          >
+            Pending
+          </div>
+
+          <button
+            id="downloadTrackedReceiptButton"
+            type="button"
+            title="Download Receipt"
+            aria-label="Download Receipt"
+            style="display:none;align-items:center;justify-content:center;width:40px;height:40px;padding:0;border:2px solid #ffffff;border-radius:6px;background:#ffffff;color:#171717;font-size:20px;font-weight:800;line-height:1;cursor:pointer;"
+          >
+            ↓
+          </button>
         </div>
 
       </div>
@@ -1022,6 +1034,11 @@
     const orderResult =
       document.getElementById("orderResult");
 
+    const downloadTrackedReceiptButton =
+      document.getElementById(
+        "downloadTrackedReceiptButton"
+      );
+
 
     function peso(amount) {
 
@@ -1086,6 +1103,15 @@
 
 
     function renderOrder(order) {
+
+      downloadTrackedReceiptButton.style.display =
+        "inline-flex";
+
+      downloadTrackedReceiptButton.onclick = () => {
+        window.location.href =
+          "order.html?orderNo=" +
+          encodeURIComponent(order.orderNumber);
+      };
 
       setText(
         "resultOrderNumber",
