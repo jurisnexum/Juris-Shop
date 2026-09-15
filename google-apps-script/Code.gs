@@ -816,6 +816,11 @@ function createOrder_(data) {
         .setValues(itemRows);
     }
 
+    // Keep the grand total of all ORDER_ITEMS subtotals updated.
+    itemsSheet.getRange("I1").setValue("Total of All Subtotals");
+    itemsSheet.getRange("I2").setFormula("=IFERROR(SUM(G2:G),0)");
+    itemsSheet.getRange("I2").setNumberFormat("₱#,##0.00");
+
     const summarySheet =
       ss.getSheetByName(CONFIG.SUMMARY_SHEET);
 
@@ -826,11 +831,10 @@ function createOrder_(data) {
     }
 
     /*
-     * Maintain one cumulative row per Product ID + Variant.
-     * Existing quantities are increased instead of creating duplicates.
+     * Maintain ORDER_SUMMARY as a cumulative inventory.
      *
-     * Read the summary once, calculate everything in memory,
-     * then write the changed summary data in one batch.
+     * Matching Product ID + Variant entries are combined.
+     * L and Large are treated as the same variant.
      */
     const summaryLastRow =
       summarySheet.getLastRow();
@@ -849,7 +853,46 @@ function createOrder_(data) {
 
     const summaryMap = new Map();
 
-    existingSummary.forEach((row, index) => {
+    const normalizeSummaryVariant = value => {
+      const normalized =
+        String(value || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, " ");
+
+      if (
+        normalized === "l" ||
+        normalized === "large"
+      ) {
+        return "Large";
+      }
+
+      if (
+        normalized === "s" ||
+        normalized === "small"
+      ) {
+        return "Small";
+      }
+
+      if (
+        normalized === "m" ||
+        normalized === "medium"
+      ) {
+        return "Medium";
+      }
+
+      if (
+        normalized === "xl" ||
+        normalized === "x-large" ||
+        normalized === "extra large"
+      ) {
+        return "XL";
+      }
+
+      return String(value || "").trim();
+    };
+
+    existingSummary.forEach(row => {
       const productId =
         String(row[0] || "").trim();
 
@@ -857,37 +900,14 @@ function createOrder_(data) {
         String(row[1] || "").trim();
 
       const variant =
-        String(row[2] || "").trim();
+        normalizeSummaryVariant(row[2]);
+
+      const quantity =
+        Number(row[3]) || 0;
 
       if (!productId || !variant) {
         return;
       }
-
-      const key =
-        productId.toLowerCase() +
-        "||" +
-        variant.toLowerCase();
-
-      summaryMap.set(key, {
-        productId,
-        productName,
-        variant,
-        quantity: Number(row[3]) || 0
-      });
-    });
-
-    normalizedItems.forEach(item => {
-      const productId =
-        String(item.productId || "").trim();
-
-      const productName =
-        String(item.name || "").trim();
-
-      const variant =
-        String(item.variant || "").trim();
-
-      const quantity =
-        Number(item.quantity) || 0;
 
       const key =
         productId.toLowerCase() +
@@ -909,14 +929,112 @@ function createOrder_(data) {
       }
     });
 
+    normalizedItems.forEach(item => {
+      const productId =
+        String(item.productId || "").trim();
+
+      const productName =
+        String(item.name || "").trim();
+
+      const variant =
+        normalizeSummaryVariant(item.variant);
+
+      const quantity =
+        Number(item.quantity) || 0;
+
+      if (!productId || !variant) {
+        return;
+      }
+
+      const key =
+        productId.toLowerCase() +
+        "||" +
+        variant.toLowerCase();
+
+      const existing =
+        summaryMap.get(key);
+
+      if (existing) {
+        existing.quantity += quantity;
+      } else {
+        summaryMap.set(key, {
+          productId,
+          productName,
+          variant,
+          quantity
+        });
+      }
+    });
+
+    const variantOrder = {
+      "small": 1,
+      "medium": 2,
+      "large": 3,
+      "xl": 4
+    };
+
     const summaryRows = Array.from(
       summaryMap.values()
-    ).map(item => [
-      item.productId,
-      item.productName,
-      item.variant,
-      item.quantity
-    ]);
+    )
+      .sort((a, b) => {
+        const productCompare =
+          a.productId.localeCompare(
+            b.productId,
+            undefined,
+            {
+              numeric: true,
+              sensitivity: "base"
+            }
+          );
+
+        if (productCompare !== 0) {
+          return productCompare;
+        }
+
+        const aOrder =
+          variantOrder[
+            a.variant.toLowerCase()
+          ] || 99;
+
+        const bOrder =
+          variantOrder[
+            b.variant.toLowerCase()
+          ] || 99;
+
+        if (aOrder !== bOrder) {
+          return aOrder - bOrder;
+        }
+
+        return a.variant.localeCompare(
+          b.variant,
+          undefined,
+          {
+            sensitivity: "base"
+          }
+        );
+      })
+      .map(item => [
+        item.productId,
+        item.productName,
+        item.variant,
+        item.quantity
+      ]);
+
+    /*
+     * Replace the existing summary data in one batch.
+     * clearContent() removes duplicate/old rows while
+     * preserving the sheet formatting.
+     */
+    if (summaryLastRow >= 2) {
+      summarySheet
+        .getRange(
+          2,
+          1,
+          summaryLastRow - 1,
+          4
+        )
+        .clearContent();
+    }
 
     if (summaryRows.length) {
       summarySheet

@@ -94,14 +94,86 @@ async function loadOrder() {
 
   /*
    * JNX RECEIPT PRINTING ANIMATION
+   *
+   * Render the real receipt first so it is always available.
+   * The existing printer animation is then shown on top of it.
+   * If the animation fails for any browser-related reason,
+   * the actual receipt remains available.
    */
   if (order) {
 
-    showPrintingAnimation(order);
+    try {
+
+      renderReceipt(order);
+
+    } catch (receiptError) {
+
+      console.error(
+        "JNX receipt preparation failed:",
+        receiptError
+      );
+
+    }
+
+    try {
+
+      showPrintingAnimation(order);
+
+    } catch (animationError) {
+
+      console.error(
+        "JNX printing animation failed:",
+        animationError
+      );
+
+      const overlay =
+        document.getElementById(
+          "printOverlay"
+        );
+
+      if (overlay) {
+
+        overlay.classList.remove(
+          "show",
+          "printing",
+          "finished"
+        );
+
+        overlay.style.display =
+          "none";
+
+        overlay.style.visibility =
+          "hidden";
+
+        overlay.style.opacity =
+          "0";
+
+        overlay.style.pointerEvents =
+          "none";
+
+      }
+
+      /*
+       * Final fallback.
+       */
+      try {
+
+        renderReceipt(order);
+
+      } catch (finalReceiptError) {
+
+        console.error(
+          "JNX final receipt rendering failed:",
+          finalReceiptError
+        );
+
+      }
+
+    }
 
   } else {
 
-    renderReceipt(order);
+    renderReceipt(null);
 
   }
 
@@ -932,6 +1004,75 @@ function showPrintingAnimation(order) {
     renderReceipt(order);
 
   }, 5000);
+
+
+  /*
+   * RECEIPT SAFETY WATCHDOG
+   *
+   * Guarantees that the actual receipt is revealed
+   * even if an asynchronous animation step is interrupted.
+   */
+  setTimeout(() => {
+
+    const currentOverlay =
+      document.getElementById(
+        "printOverlay"
+      );
+
+    if (!currentOverlay) {
+
+      renderReceipt(order);
+      return;
+
+    }
+
+    const isStillVisible =
+      currentOverlay.style.display !== "none" &&
+      currentOverlay.style.visibility !== "hidden" &&
+      currentOverlay.style.opacity !== "0";
+
+    if (isStillVisible) {
+
+      console.warn(
+        "JNX RECEIPT WATCHDOG: printing overlay was still active. Revealing receipt."
+      );
+
+      currentOverlay.classList.remove(
+        "show",
+        "printing",
+        "finished"
+      );
+
+      currentOverlay.style.display =
+        "none";
+
+      currentOverlay.style.visibility =
+        "hidden";
+
+      currentOverlay.style.opacity =
+        "0";
+
+      currentOverlay.style.pointerEvents =
+        "none";
+
+      try {
+
+        stopJnxPrinterSound();
+
+      } catch (soundError) {
+
+        console.warn(
+          "JNX watchdog could not stop printer sound:",
+          soundError
+        );
+
+      }
+
+      renderReceipt(order);
+
+    }
+
+  }, 6500);
 
 }
 
