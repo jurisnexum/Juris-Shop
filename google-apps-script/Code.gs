@@ -742,16 +742,16 @@ function createOrder_(data) {
     const paymentMethod =
       String(data.paymentMethod || "").trim();
 
-    if (paymentMethod !== "GCash") {
+    if (paymentMethod !== "BPI InstaPay") {
       throw new Error("Invalid payment method.");
     }
 
     if (
-      paymentMethod === "GCash" &&
+      paymentMethod === "BPI InstaPay" &&
       !String(data.paymentReference || "").trim()
     ) {
       throw new Error(
-        "GCash reference number is required."
+        "BPI InstaPay reference number is required."
       );
     }
 

@@ -364,14 +364,14 @@ function togglePayment() {
 
   panel.classList.toggle(
     "hidden",
-    method !== "GCash"
+    method !== "BPI InstaPay"
   );
 
   ref.required =
-    method === "GCash";
+    method === "BPI InstaPay";
 
   proof.required =
-    method === "GCash";
+    method === "BPI InstaPay";
 }
 
 function fileToBase64(file) {
@@ -727,7 +727,7 @@ async function submitOrder(event) {
 
   try {
     const proofFile =
-      method === "GCash"
+      method === "BPI InstaPay"
         ? await fileToBase64(
             document.getElementById(
               "proof"
@@ -787,7 +787,7 @@ async function submitOrder(event) {
         method,
 
       paymentReference:
-        method === "GCash"
+        method === "BPI InstaPay"
           ? document.getElementById(
               "paymentReference"
             ).value.trim()
